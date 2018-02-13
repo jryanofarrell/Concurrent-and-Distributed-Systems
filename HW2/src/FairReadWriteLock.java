@@ -16,7 +16,7 @@ public class FairReadWriteLock {
 		next_up = new ArrayList<Integer>(); 
 		
 	}
-                        
+	
 	public synchronized void beginRead() throws InterruptedException {
 		next_up.add(1);
 		while(writing > 0 || next_up.get(0) == -1){
