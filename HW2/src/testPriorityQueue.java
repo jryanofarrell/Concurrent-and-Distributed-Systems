@@ -45,6 +45,8 @@ public class testPriorityQueue implements Runnable {
 		PriorityQueue queue = new PriorityQueue(25);
 		Thread test1 = new Thread() {
 		      public void run(){
+		    	  int i = 0;
+		    	  while(i < 10) {
 		    	  int priority = ThreadLocalRandom.current().nextInt(0, 9 + 1);
 					String str = generateString();
 					System.out.println("Thread " + Thread.currentThread().getId() + " adding " + str + " priority " + priority);
@@ -52,27 +54,31 @@ public class testPriorityQueue implements Runnable {
 						queue.add(str, priority);
 						//System.out.println(queue.search(str));
 						queue.print_list();
-						Thread.sleep(1000);
+						i++;
 					} catch(Exception e) {
 						e.printStackTrace();
 					}
 		        }
+		      }
 		 };
 		Thread test2 = new Thread()  {
 		      public void run(){
-		    	  
+		    	  int i = 0;
+		    	  while(true) {
 		    	  try {
 		    		  
 						System.out.println("Thread " + Thread.currentThread().getId() + " getting first " + queue.getFirst());
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-					}		        
+					}	
+		    	  }
 		      }
 		 };
 		 test1.start();
 		 try {
 			Thread.sleep(5000);
+			 test1.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
