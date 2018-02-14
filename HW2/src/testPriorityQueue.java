@@ -12,7 +12,7 @@ public class testPriorityQueue implements Runnable {
 	
 	public void run() {
 		while(true) {
-			if(ThreadLocalRandom.current().nextInt(0, 3 + 1) == 2) {
+			if(ThreadLocalRandom.current().nextInt(0, 1 + 1) == 1) {
 				try {
 					System.out.println("Thread " + Thread.currentThread().getId() + " getting first " + queue.getFirst());
 				} catch (InterruptedException e) {
@@ -25,7 +25,7 @@ public class testPriorityQueue implements Runnable {
 				System.out.println("Thread " + Thread.currentThread().getId() + " adding " + str + " priority " + priority);
 				try {
 					queue.add(str, priority);
-					System.out.println(queue.search(str));
+					//System.out.println(queue.search(str));
 					queue.print_list();
 					Thread.sleep(1000);
 				} catch(Exception e) {

@@ -18,11 +18,12 @@ public class PriorityQueue {
 	}
 
 	public int add(String name, int priority) throws InterruptedException {
-		maxsize.acquire();
-		bufsize.release(); 
+		 
 		if(search(name) != -1){
 			return -1;
 		}
+		maxsize.acquire();
+		
 		
 		mutex.acquire();
 		Node current = head;
@@ -30,17 +31,21 @@ public class PriorityQueue {
 		if(current == null){
 			head = new_node; 
 			mutex.release(); 
+			bufsize.release();
 			return 0;
 		}
+		//System.out.println("here 1 - priority " +Integer.toString(priority));
 		mutex.release();
 		current.lock.lock(); 
 		if(current.priority < new_node.priority){
 			new_node.next = current;
 			head = new_node;
 			current.lock.unlock();
+			bufsize.release();
 			return 0;
 		}
 		
+		//System.out.println("here 2 - priority " +Integer.toString(priority));
 		int count = 1; 
 		while(current.next !=null ){
 			current.next.lock.lock();
@@ -49,6 +54,7 @@ public class PriorityQueue {
 				current.next = new_node;
 				current.lock.unlock();
 				current.next.next.lock.unlock();
+				bufsize.release();
 				return count;
 			}
 			current.lock.unlock();
@@ -56,8 +62,10 @@ public class PriorityQueue {
 			count ++; 
 		}
 		
+		//System.out.println("here 3 - priority " +Integer.toString(priority));
 		current.next = new_node;
 		current.lock.unlock();
+		bufsize.release();
 		return count;
         // Adds the name with its priority to this queue.
         // Returns the current position in the list where the name was inserted;
@@ -82,16 +90,20 @@ public class PriorityQueue {
 	}
 
 	public String getFirst() throws InterruptedException {
-		maxsize.release();
 		bufsize.acquire(); 
 		head.lock.lock(); 
-		head.next.lock.lock();
+		if(head.next != null){
+			head.next.lock.lock();
+		}
 		
 		String first_name = head.name;
 		
 		head.lock.unlock(); 
 		head = head.next; 
-		head.lock.unlock(); 
+		if(head != null){
+			head.lock.unlock();
+		}
+		maxsize.release();
 		return first_name;
         // Retrieves and removes the name with the highest priority in the list,
         // or blocks the thread if the list is empty.
@@ -102,6 +114,7 @@ public class PriorityQueue {
 		Node current = head; 
 		while(current != null){
 			printout = printout + "[" + current.name+","+Integer.toString(current.priority)+"]  ";
+			current = current.next; 
 		}
 		System.out.println(printout);
 	}
