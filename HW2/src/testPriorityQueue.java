@@ -17,6 +17,7 @@ public class testPriorityQueue implements Runnable {
 			System.out.println("Thread " + Thread.currentThread().getId() + " adding " + str + " priority " + priority);
 			try {
 				queue.add(str, priority);
+				queue.print_list();
 				Thread.sleep(1000);
 			} catch(Exception e) {
 				e.printStackTrace();
