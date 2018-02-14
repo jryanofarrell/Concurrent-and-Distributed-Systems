@@ -29,6 +29,7 @@ public class PriorityQueue {
 		Node new_node = new Node(name,priority);
 		if(current == null){
 			head = new_node; 
+			mutex.release(); 
 			return 0;
 		}
 		mutex.release();
@@ -36,6 +37,7 @@ public class PriorityQueue {
 		if(current.priority < new_node.priority){
 			new_node.next = current;
 			head = new_node;
+			current.lock.unlock();
 			return 0;
 		}
 		
