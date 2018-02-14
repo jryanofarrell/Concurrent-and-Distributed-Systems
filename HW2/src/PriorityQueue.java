@@ -27,22 +27,27 @@ public class PriorityQueue {
 		
 		if(current == null){
 			head = new_node; 
-			return 1;
+			return 0;
 		}
 		
 		if(current.priority < new_node.priority){
 			new_node.next = current;
 			head = new_node;
+			return 0;
 		}
 		
+		int count = 1; 
 		while(current.next !=null ){
 			if(current.next.priority < new_node.priority){
 				new_node.next = current.next;
 				current.next = new_node; 
+				return count;
 			}
+			count ++; 
 		}
 		
-		return priority;
+		current.next = new_node;
+		return count;
         // Adds the name with its priority to this queue.
         // Returns the current position in the list where the name was inserted;
         // otherwise, returns -1 if the name is already present in the list.
@@ -53,11 +58,12 @@ public class PriorityQueue {
 		int count = 0;
 		Node current = head;
 		while(current != null){
-			count++; 
+			
 			if(current.name.equals(name)){
 				return count;
 			}
 			current = current.next; 
+			count++; 
 		}
 		return -1;
         // Returns the position of the name in the list;
@@ -68,7 +74,9 @@ public class PriorityQueue {
 		maxsize.release();
 		bufsize.acquire(); 
 		
-		return null;
+		String first_name = head.name;
+		head = head.next; 
+		return first_name;
         // Retrieves and removes the name with the highest priority in the list,
         // or blocks the thread if the list is empty.
 	}
