@@ -1,15 +1,16 @@
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class PriorityQueue {
 	
-	LinkedList<node> queue; 
+	Node head;
 	Semaphore maxsize; 
 	Semaphore bufsize; 
-	
+	private final ReentrantLock lock = new ReentrantLock();
 	
 	public PriorityQueue(int maxSize) {
-		queue = new LinkedList<node>(); 
+		head = null; 
 		maxsize = new Semaphore(maxSize);
 		bufsize = new Semaphore(0);
         // Creates a Priority queue with maximum allowed size as capacity
@@ -18,6 +19,29 @@ public class PriorityQueue {
 	public int add(String name, int priority) throws InterruptedException {
 		maxsize.acquire();
 		bufsize.release(); 
+		if(search(name) != -1){
+			return -1;
+		}
+		Node current = head;
+		Node new_node = new Node(name,priority);
+		
+		if(current == null){
+			head = new_node; 
+			return 1;
+		}
+		
+		if(current.priority < new_node.priority){
+			new_node.next = current;
+			head = new_node;
+		}
+		
+		while(current.next !=null ){
+			if(current.next.priority < new_node.priority){
+				new_node.next = current.next;
+				current.next = new_node; 
+			}
+		}
+		
 		return priority;
         // Adds the name with its priority to this queue.
         // Returns the current position in the list where the name was inserted;
@@ -26,7 +50,16 @@ public class PriorityQueue {
 	}
 
 	public int search(String name) {
-		return 0;
+		int count = 0;
+		Node current = head;
+		while(current != null){
+			count++; 
+			if(current.name.equals(name)){
+				return count;
+			}
+			current = current.next; 
+		}
+		return -1;
         // Returns the position of the name in the list;
         // otherwise, returns -1 if the name is not found.
 	}
@@ -40,11 +73,11 @@ public class PriorityQueue {
         // or blocks the thread if the list is empty.
 	}
 	
-	class node{
+	class Node{
 		String name;
 		int priority;
-		node next; 
-		node(String name, int priority){
+		Node next; 
+		Node(String name, int priority){
 			this.name = name;
 			this.priority = priority; 
 			this.next = null; 
