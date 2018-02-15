@@ -17,7 +17,7 @@ public class PriorityQueue {
 	}
 
 	public int add(String name, int priority) throws InterruptedException {
-
+		System.out.println("add");
 		maxsize.acquire();
 		if(search(name) != -1){
 			return -1;
@@ -32,8 +32,11 @@ public class PriorityQueue {
 			return 0;
 		}
 		mutex.release();
+		System.out.println("add 1");
 		current.lock.lock(); 
+		System.out.println("add 1.1");
 		if(current.priority < new_node.priority){
+			System.out.println("add 1.2");
 			new_node.next = current;
 			head = new_node;
 			current.lock.unlock();
@@ -41,6 +44,7 @@ public class PriorityQueue {
 			return 0;
 		}
 		int count = 1; 
+		System.out.println("add 2");
 		while(current.next !=null ){
 			current.next.lock.lock();
 			if(current.next.priority < new_node.priority){
@@ -55,7 +59,7 @@ public class PriorityQueue {
 			current=current.next; 
 			count ++; 
 		}
-		
+		System.out.println("add 3");
 		current.next = new_node;
 		current.lock.unlock();
 		bufsize.release(); 		
@@ -83,16 +87,24 @@ public class PriorityQueue {
 	}
 
 	public String getFirst() throws InterruptedException {
+		System.out.println("get first");
 		bufsize.acquire(); 
 		head.lock.lock(); 
-		System.out.println("getFirst head " + head.name);
-		if(head.next != null)
+//		System.out.println("getFirst head " + head.name);
+		System.out.println("get first 1");
+		if(head.next != null){
 			head.next.lock.lock();
+		}
 		
 		String first_name = head.name;
-		
-		head = head.next; 
+		Node temp = head; 
+		head = head.next;
+		if(head != null){
+			head.lock.unlock();
+		}
+		temp.lock.unlock();
 		maxsize.release();
+		System.out.println("get first 2");
 		return first_name;
         // Retrieves and removes the name with the highest priority in the list,
         // or blocks the thread if the list is empty.

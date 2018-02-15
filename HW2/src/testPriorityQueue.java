@@ -42,7 +42,7 @@ public class testPriorityQueue implements Runnable {
 
 	public static void main(String[] args) {
 		Thread[] t = new Thread[SIZE];
-		PriorityQueue queue = new PriorityQueue(25);
+		PriorityQueue queue = new PriorityQueue(50);
 		Thread test1 = new Thread() {
 		      public void run(){
 		    	  int i = 0;
@@ -53,7 +53,7 @@ public class testPriorityQueue implements Runnable {
 					try {
 						queue.add(str, priority);
 						//System.out.println(queue.search(str));
-						queue.print_list();
+						//queue.print_list();
 						i++;
 					} catch(Exception e) {
 						e.printStackTrace();
@@ -71,7 +71,7 @@ public class testPriorityQueue implements Runnable {
 					try {
 						queue.add(str, priority);
 						//System.out.println(queue.search(str));
-						queue.print_list();
+						//queue.print_list();
 						i++;
 					} catch(Exception e) {
 						e.printStackTrace();
@@ -94,7 +94,7 @@ public class testPriorityQueue implements Runnable {
 		 };
 		 test1.start();		 
 		 test2.start(); 
-		 test3.start();
+		 //test3.start();
 		
 		/* 
 		for (int i = 0; i < SIZE; ++i) {
