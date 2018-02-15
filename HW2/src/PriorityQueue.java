@@ -37,9 +37,9 @@ public class PriorityQueue {
 //			return 0;
 //		}
 //		mutex.release();
-		System.out.println("add 1");
+//		System.out.println("add 1");
 		current.lock.lock(); 
-		System.out.println("add 1.1");
+//		System.out.println("add 1.1");
 //		if(current.priority < new_node.priority){
 //			System.out.println("add 1.2");
 //			new_node.next = current;
@@ -49,7 +49,7 @@ public class PriorityQueue {
 //			return 0;
 //		}
 		int count = 1; 
-		System.out.println("add 2");
+//		System.out.println("add 2");
 		while(current.next !=null ){
 			current.next.lock.lock();
 			if(current.next.priority < new_node.priority){
@@ -127,8 +127,8 @@ public class PriorityQueue {
 	
 	public synchronized void print_list(){
 		String printout = "";
-		Node current = head; 
-		while(current != null){
+		Node current = head.next; 
+		while(current.next != null){
 			printout = printout + "[" + current.name+","+Integer.toString(current.priority)+"]  ";
 			current = current.next;
 		}

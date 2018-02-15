@@ -93,14 +93,14 @@ public class testPriorityQueue implements Runnable {
 		      }
 		 };
 		 test1.start();	
-		 try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		 try {
+//			Thread.sleep(5000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		 test2.start(); 
-		 //test3.start();
+		 test3.start();
 		
 		/* 
 		for (int i = 0; i < SIZE; ++i) {
