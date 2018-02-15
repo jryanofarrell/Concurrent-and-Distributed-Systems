@@ -12,7 +12,7 @@ public class testPriorityQueue implements Runnable {
 	
 	public void run() {
 		while(true) {
-			if(ThreadLocalRandom.current().nextInt(0, 1 + 1) == 1) {
+			if(ThreadLocalRandom.current().nextInt(0, 3 + 1) == 1) {
 				try {
 					System.out.println("Thread " + Thread.currentThread().getId() + " getting first " + queue.getFirst());
 				} catch (InterruptedException e) {
@@ -46,7 +46,25 @@ public class testPriorityQueue implements Runnable {
 		Thread test1 = new Thread() {
 		      public void run(){
 		    	  int i = 0;
-		    	  while(i < 10) {
+		    	  while(true) {
+		    	  int priority = ThreadLocalRandom.current().nextInt(0, 9 + 1);
+					String str = generateString();
+					System.out.println("Thread " + Thread.currentThread().getId() + " adding " + str + " priority " + priority);
+					try {
+						queue.add(str, priority);
+						//System.out.println(queue.search(str));
+						queue.print_list();
+						i++;
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+		        }
+		      }
+		 };
+		 Thread test3 = new Thread() {
+		      public void run(){
+		    	  int i = 0;
+		    	  while(true) {
 		    	  int priority = ThreadLocalRandom.current().nextInt(0, 9 + 1);
 					String str = generateString();
 					System.out.println("Thread " + Thread.currentThread().getId() + " adding " + str + " priority " + priority);
@@ -63,7 +81,6 @@ public class testPriorityQueue implements Runnable {
 		 };
 		Thread test2 = new Thread()  {
 		      public void run(){
-		    	  int i = 0;
 		    	  while(true) {
 		    	  try {
 		    		  
@@ -75,16 +92,11 @@ public class testPriorityQueue implements Runnable {
 		    	  }
 		      }
 		 };
-		 test1.start();
-		 try {
-			Thread.sleep(5000);
-			 test1.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		 test2.start();
-		 /*
+		 test1.start();		 
+		 test2.start(); 
+		 test3.start();
+		
+		/* 
 		for (int i = 0; i < SIZE; ++i) {
 			t[i] = new Thread(new testPriorityQueue(queue));
 		}

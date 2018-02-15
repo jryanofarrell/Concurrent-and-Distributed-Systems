@@ -4,13 +4,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class PriorityQueue {
 	
-	Node head;
+	volatile Node head = null;
 	Semaphore maxsize; 
 	Semaphore bufsize; 
 	Semaphore mutex; 
 	
 	public PriorityQueue(int maxSize) {
-		head = null; 
 		maxsize = new Semaphore(maxSize);
 		bufsize = new Semaphore(0);
 		mutex = new Semaphore(1); 
@@ -18,34 +17,29 @@ public class PriorityQueue {
 	}
 
 	public int add(String name, int priority) throws InterruptedException {
-		 
+
+		maxsize.acquire();
 		if(search(name) != -1){
 			return -1;
 		}
-		maxsize.acquire();
-		
-		
 		mutex.acquire();
 		Node current = head;
 		Node new_node = new Node(name,priority);
 		if(current == null){
 			head = new_node; 
 			mutex.release(); 
-			bufsize.release();
+			bufsize.release(); 
 			return 0;
 		}
-		//System.out.println("here 1 - priority " +Integer.toString(priority));
 		mutex.release();
 		current.lock.lock(); 
 		if(current.priority < new_node.priority){
 			new_node.next = current;
 			head = new_node;
 			current.lock.unlock();
-			bufsize.release();
+			bufsize.release(); 
 			return 0;
 		}
-		
-		//System.out.println("here 2 - priority " +Integer.toString(priority));
 		int count = 1; 
 		while(current.next !=null ){
 			current.next.lock.lock();
@@ -54,7 +48,7 @@ public class PriorityQueue {
 				current.next = new_node;
 				current.lock.unlock();
 				current.next.next.lock.unlock();
-				bufsize.release();
+				bufsize.release(); 
 				return count;
 			}
 			current.lock.unlock();
@@ -62,10 +56,9 @@ public class PriorityQueue {
 			count ++; 
 		}
 		
-		//System.out.println("here 3 - priority " +Integer.toString(priority));
 		current.next = new_node;
 		current.lock.unlock();
-		bufsize.release();
+		bufsize.release(); 		
 		return count;
         // Adds the name with its priority to this queue.
         // Returns the current position in the list where the name was inserted;
@@ -92,17 +85,13 @@ public class PriorityQueue {
 	public String getFirst() throws InterruptedException {
 		bufsize.acquire(); 
 		head.lock.lock(); 
-		if(head.next != null){
+		System.out.println("getFirst head " + head.name);
+		if(head.next != null)
 			head.next.lock.lock();
-		}
 		
 		String first_name = head.name;
 		
-		head.lock.unlock(); 
 		head = head.next; 
-		if(head != null){
-			head.lock.unlock();
-		}
 		maxsize.release();
 		return first_name;
         // Retrieves and removes the name with the highest priority in the list,
@@ -114,7 +103,7 @@ public class PriorityQueue {
 		Node current = head; 
 		while(current != null){
 			printout = printout + "[" + current.name+","+Integer.toString(current.priority)+"]  ";
-			current = current.next; 
+			current = current.next;
 		}
 		System.out.println(printout);
 	}
