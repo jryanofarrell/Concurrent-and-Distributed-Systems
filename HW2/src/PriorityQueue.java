@@ -27,36 +27,19 @@ public class PriorityQueue {
 			maxsize.release();
 			return -1;
 		}
-//		mutex.acquire();
 		Node current = head;
 		Node new_node = new Node(name,priority);
-//		if(current == null){
-//			head = new_node; 
-//			mutex.release(); 
-//			bufsize.release(); 
-//			return 0;
-//		}
-//		mutex.release();
-//		System.out.println("add 1");
 		current.lock.lock(); 
-//		System.out.println("add 1.1");
-//		if(current.priority < new_node.priority){
-//			System.out.println("add 1.2");
-//			new_node.next = current;
-//			head = new_node;
-//			current.lock.unlock();
-//			bufsize.release(); 
-//			return 0;
-//		}
-		int count = 1; 
-//		System.out.println("add 2");
+		int count = 0; 
+		
 		while(current.next !=null ){
 			current.next.lock.lock();
 			if(current.next.priority < new_node.priority){
 				new_node.next = current.next;
+				current.next.lock.unlock(); 
 				current.next = new_node;
 				current.lock.unlock();
-				current.next.next.lock.unlock();
+				//current.next.next.lock.unlock();
 				bufsize.release(); 
 				return count;
 			}
@@ -66,15 +49,7 @@ public class PriorityQueue {
 		}
 		System.out.println("HUGGGGEEEEE ERRROR");
 		return -1;
-//		System.out.println("add 3");
-//		current.next = new_node;
-//		current.lock.unlock();
-//		bufsize.release(); 		
-//		return count;
-        // Adds the name with its priority to this queue.
-        // Returns the current position in the list where the name was inserted;
-        // otherwise, returns -1 if the name is already present in the list.
-        // This method blocks when the list is full.
+
 	}
 
 	public int search(String name) {
@@ -104,22 +79,9 @@ public class PriorityQueue {
 		head.next = head.next.next;
 		head.next.lock.unlock();
 		head.lock.unlock();
-//		System.out.println("getFirst head " + head.name);
-//		System.out.println("get first 1");
-//		if(head.next != null){
-//			head.next.lock.lock();
-//		}
-//		
-//		String first_name = head.name;
-//		//Node temp = head;
-//		head.lock.unlock();
-//		head = head.next;
-//		if(head != null){
-//			head.lock.unlock();
-//		}
-		//temp.lock.unlock();
+
 		maxsize.release();
-		//System.out.println("get first 2");
+		
 		return first_name;
         // Retrieves and removes the name with the highest priority in the list,
         // or blocks the thread if the list is empty.
