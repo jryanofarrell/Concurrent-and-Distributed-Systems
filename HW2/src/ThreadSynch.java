@@ -1,6 +1,5 @@
 /*
- * EID's of group members
- * 
+ *jro769 mac7865 
  */
 import java.util.concurrent.Semaphore; // for implementation using Semaphores
 
