@@ -22,35 +22,13 @@ public class TCP_Communicator implements Communicator {
 	        System.err.println("Couldn't get I/O for the connection to: hostname");
 	    }
 	}
+
+	@Override
+	public void send_message(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
-	@Override
-	public void borrow_book(String student_name, String book_name) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void return_book(String record_id) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void list(String student_name) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void inventory() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void exit() {
-		// TODO Auto-generated method stub
-
-	}
 
 }

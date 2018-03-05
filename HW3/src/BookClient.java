@@ -36,23 +36,18 @@ public class BookClient {
             // TODO: set the mode of communication for sending commands to the server 
           }
           else if (tokens[0].equals("borrow")) {
-        	  comm.borrow_book(tokens[1], tokens[2]);
             // TODO: send appropriate command to the server and display the
             // appropriate responses form the server
           } else if (tokens[0].equals("return")) {
-        	  comm.return_book(tokens[1]);
             // TODO: send appropriate command to the server and display the
             // appropriate responses form the server
           } else if (tokens[0].equals("inventory")) {
-        	  comm.inventory();
             // TODO: send appropriate command to the server and display the
             // appropriate responses form the server
           } else if (tokens[0].equals("list")) {
-        	  comm.list(tokens[1]);
             // TODO: send appropriate command to the server and display the
             // appropriate responses form the server
           } else if (tokens[0].equals("exit")) {
-        	  comm.exit();
             // TODO: send appropriate command to the server 
           } else {
             System.out.println("ERROR: No such command");
