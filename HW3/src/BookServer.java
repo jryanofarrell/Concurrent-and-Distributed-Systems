@@ -71,9 +71,10 @@ public class BookServer {
 
 
   public synchronized static String printInventory() {
-	  String output = "";
-    for(String k : printOrder)
-      output += k + " " + inventory.get(k)+"\n";
+	String output = "";
+    for(String k : printOrder){
+    	output += k + " " + inventory.get(k)+"\n";
+    }  
     return output; 
   }
 }
