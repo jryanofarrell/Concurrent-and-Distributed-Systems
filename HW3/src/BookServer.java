@@ -77,11 +77,11 @@ public class BookServer {
     return output; 
   }
 
-  public int getInventoryLength() {
+  public static int getInventoryLength() {
     return inventory.keySet().size();
   }
 
-  public synchronized int getListLength(String studentName) {
+  public synchronized static int getListLength(String studentName) {
     ArrayList<Record> studentRecords = new ArrayList<Record>();
     for(Record r : currentRecordList) {
       if(r.studentName.equals(studentName))

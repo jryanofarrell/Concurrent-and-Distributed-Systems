@@ -36,9 +36,13 @@ public class TCP_Communicator implements Communicator {
 		String line;
 		try {
 			//while((line = is.readLine()) != null){
-			int num_response = Integer.parseInt(is.readLine());
-			for(int i = 0; i<num_response; i++){
-				response += is.readLine(); 
+			String totalResponse = "";
+			response = is.readLine();
+			int counter = Integer.valueOf(response);
+			while(counter != 0) {
+				response = is.readLine();
+				totalResponse += response;
+				counter--;
 			}
 			//}
 		} catch (IOException e) {
