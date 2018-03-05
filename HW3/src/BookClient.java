@@ -79,7 +79,8 @@ public class BookClient {
             continue;
           }
           String response = comm.send_message(message);
-          oFile.write(response);
+          System.out.println(response);
+          //oFile.write(response);
         }
         
         oFile.close();

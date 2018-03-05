@@ -23,9 +23,10 @@ public class TcpServer extends Thread {
 			os = new PrintStream(clientSocket.getOutputStream());
 
 			while(true) {
+				System.out.println("here");
 				line = is.readLine();
 				System.out.println(line);
-				os.println(line);
+				os.println(line+"\r\n");
 			}
 		} catch(Exception e) {
 			System.out.println(e);
