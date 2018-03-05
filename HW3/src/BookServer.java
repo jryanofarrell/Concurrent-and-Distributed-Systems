@@ -1,8 +1,10 @@
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.io.*;
 
 public class BookServer {
   private static HashMap<String, Integer> inventory = new HashMap<String, Integer>();
+  private static ArrayList<String> printOrder = new ArrayList<String>();
   public static void main (String[] args) {
     int tcpPort;
     int udpPort;
@@ -25,15 +27,20 @@ public class BookServer {
           System.out.println(lineArray[0] + " " + lineArray[1]);
           String bookTitle = lineArray[0];
           Integer bookQuantity = Integer.valueOf(lineArray[1]);
+          printOrder.add(bookTitle);
           inventory.put(bookTitle, bookQuantity);
       }
     } catch(Exception e) {
       System.out.println("Error while parsing inventory file.");
       e.printStackTrace();
     }
-    for(String k : inventory.keySet())
-      System.out.println(k + " " + inventory.get(k));
+    printInventory();
     // TODO: handle request from clients
-    
+
+  }
+
+  public static void printInventory() {
+    for(String k : printOrder)
+      System.out.println(k + " " + inventory.get(k));
   }
 }
