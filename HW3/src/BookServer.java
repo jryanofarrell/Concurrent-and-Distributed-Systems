@@ -69,8 +69,11 @@ public class BookServer {
     return false;
   }
 
-  public static void printInventory() {
+
+  public synchronized static String printInventory() {
+	  String output = "";
     for(String k : printOrder)
-      System.out.println(k + " " + inventory.get(k));
+      output += k + " " + inventory.get(k)+"\n";
+    return output; 
   }
 }
