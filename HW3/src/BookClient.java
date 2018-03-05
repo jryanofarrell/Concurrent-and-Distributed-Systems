@@ -58,7 +58,17 @@ public class BookClient {
             // TODO: set the mode of communication for sending commands to the server 
           }
           else if (tokens[0].equals("borrow")) {
-        	  message += ":"+tokens[1] + ":"+tokens[2];
+        	  message += ":"+tokens[1] + ":";
+        	  int k = 2;
+        	  while(true){
+        		  String tok = tokens[k];
+        		  if(tok.substring(tok.length()-1).equals("\"")){
+        			  message += tok;
+        			  break;
+        		  }
+        		  message += tok+" ";
+        		  k++; 
+        	  }
             // TODO: send appropriate command to the server and display the
             // appropriate responses form the server
           } else if (tokens[0].equals("return")) {
