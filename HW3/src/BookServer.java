@@ -69,11 +69,23 @@ public class BookServer {
     return false;
   }
 
-
   public synchronized static String printInventory() {
 	  String output = "";
     for(String k : printOrder)
       output += k + " " + inventory.get(k)+"\n";
     return output; 
+  }
+
+  public int getInventoryLength() {
+    return inventory.keySet().size();
+  }
+
+  public synchronized int getListLength(String studentName) {
+    ArrayList<Record> studentRecords = new ArrayList<Record>();
+    for(Record r : currentRecordList) {
+      if(r.studentName.equals(studentName))
+        studentRecords.add(r);
+    }
+    return studentRecords.size();
   }
 }
