@@ -4,7 +4,7 @@ import java.net.*;
 public class TcpServer extends Thread {
 	ServerSocket socket = null;
 	String line;
-	DataInputStream is;
+	BufferedReader is;
 	PrintStream os;
 	Socket clientSocket = null;
 
@@ -19,7 +19,7 @@ public class TcpServer extends Thread {
 	public void run() {
 		try {
 			clientSocket = socket.accept();
-			is = new DataInputStream(clientSocket.getInputStream());
+	        is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			os = new PrintStream(clientSocket.getOutputStream());
 
 			while(true) {
