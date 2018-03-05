@@ -21,13 +21,15 @@ public class BookClient {
     hostAddress = "localhost";
     tcpPort = 7000;// hardcoded -- must match the server's tcp port
     udpPort = 8000;// hardcoded -- must match the server's udp port
+    System.out.println("creating communicators");
     Communicator comm;
     UDP_Communicator udp_comm = new UDP_Communicator(hostAddress,udpPort);
     TCP_Communicator tcp_comm = new TCP_Communicator(tcpPort);
     comm = udp_comm;
+    System.out.println("communicators created");
     String outFile = "out_"+clientId+".txt";
     File yourFile = new File(outFile);
-    
+    System.out.println("creating output file");
     BufferedWriter oFile = null; 
     FileWriter fw = null;
     try {
@@ -37,7 +39,7 @@ public class BookClient {
 	} catch (IOException e1) {
 		e1.printStackTrace();
 	}
-    
+    System.out.println("output file created");
     try {
         Scanner sc = new Scanner(new FileReader(commandFile));
 
@@ -45,6 +47,7 @@ public class BookClient {
           String cmd = sc.nextLine();
           String[] tokens = cmd.split(" ");
           String message = "";
+          System.out.println(cmd);
           message += tokens[0];
           if (tokens[0].equals("setmode")) {
         	  if(tokens[1].equals("T"))

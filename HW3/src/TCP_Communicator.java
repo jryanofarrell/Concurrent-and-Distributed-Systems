@@ -14,7 +14,7 @@ public class TCP_Communicator implements Communicator {
 	TCP_Communicator(int socket_number){
 		this.socket_number=socket_number;
 	    try {
-	        tcpSocket = new Socket("hostname", socket_number);
+	        tcpSocket = new Socket("localhost", socket_number);
 	        os = new DataOutputStream(tcpSocket.getOutputStream());
 	        is = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
 	    } catch (UnknownHostException e) {
@@ -46,7 +46,4 @@ public class TCP_Communicator implements Communicator {
 		// TODO Auto-generated method stub
 		
 	}
-
-	
-
 }
