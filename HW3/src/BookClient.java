@@ -28,8 +28,8 @@ public class BookClient {
     String outFile = "out_"+clientId+".txt";
     File yourFile = new File(outFile);
     
-    BufferedWriter oFile; 
-    FileWriter fw;
+    BufferedWriter oFile = null; 
+    FileWriter fw = null;
     try {
 		yourFile.createNewFile();
 		fw= new FileWriter(yourFile.getAbsoluteFile(),true);
@@ -82,7 +82,10 @@ public class BookClient {
         oFile.close();
         fw.close();
     } catch (FileNotFoundException e) {
-	e.printStackTrace();
-    }
+    	e.printStackTrace();
+    } catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
   }
 }
