@@ -47,7 +47,7 @@ public class BookClient {
           String cmd = sc.nextLine();
           String[] tokens = cmd.split(" ");
           String message = "";
-          System.out.println(cmd);
+          //System.out.println(cmd);
           message += tokens[0];
           if (tokens[0].equals("setmode")) {
         	  if(tokens[1].equals("T"))

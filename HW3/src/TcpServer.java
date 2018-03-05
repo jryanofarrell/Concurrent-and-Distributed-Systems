@@ -49,17 +49,20 @@ public class TcpServer extends Thread {
 						}
 						break;
 					case "list":
-						System.out.println("list");
+						//System.out.println("list");
+						os.println("list");
 						break;
 					case "inventory":
-						System.out.println("inventory");
+						os.println(BookServer.printInventory());
+						//System.out.println("inventory");
 						break;
 					case "exit":
-						System.out.println("exit");
+						os.println("exit");
+						//System.out.println("exit");
 						running = false;
 						break;
 				}
-				os.println(line+"\r\n");
+				//os.println(line);
 			}
 			socket.close();
 		} catch(Exception e) {

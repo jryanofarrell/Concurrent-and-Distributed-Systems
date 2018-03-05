@@ -27,7 +27,7 @@ public class TCP_Communicator implements Communicator {
 	@Override
 	public String send_message(String message) {
 		try {
-			os.writeBytes(message+"\r\n");
+			os.writeBytes(message+"\r");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
