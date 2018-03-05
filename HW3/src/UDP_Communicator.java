@@ -1,3 +1,5 @@
+import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -23,7 +25,28 @@ public class UDP_Communicator implements Communicator {
 		
 	}
 	@Override
-	public void send_message(String message) {
+	public String send_message(String message) {
+		
+		byte[] buf;
+        buf = message.getBytes();
+        DatagramPacket packet 
+          = new DatagramPacket(buf, buf.length, address, 4445);
+        try {
+			udpSocket.send(packet);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        packet = new DatagramPacket(buf, buf.length);
+        try {
+			udpSocket.receive(packet);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        String received = new String(
+          packet.getData(), 0, packet.getLength());
+        return received;
 		// TODO Auto-generated method stub
 		
 	}

@@ -6,5 +6,5 @@ public interface Communicator {
 //	void list(String student_name);
 //	void inventory();
 //	void exit();
-	void send_message(String message);
+	String send_message(String message);
 };
