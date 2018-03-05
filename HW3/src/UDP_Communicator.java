@@ -32,18 +32,14 @@ public class UDP_Communicator implements Communicator {
         DatagramPacket packet 
           = new DatagramPacket(buf, buf.length, address, 4445);
         try {
-        	System.out.println("udp sending packet");
 			udpSocket.send(packet);
-			System.out.println("udp sent packet");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         packet = new DatagramPacket(buf, buf.length);
         try {
-        	System.out.println("udp receiving packet");
 			udpSocket.receive(packet);
-			System.out.println("udp recieved packet");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

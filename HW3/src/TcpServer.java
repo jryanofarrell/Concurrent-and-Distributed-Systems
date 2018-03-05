@@ -25,8 +25,6 @@ public class TcpServer extends Thread {
 			while(running) {
 				line = is.readLine();
 				String[] commandTokens = line.split(":");
-				for(String s : commandTokens)
-					System.out.println(s);
 				switch(commandTokens[0]) {
 					case "borrow":
 						System.out.println("borrow");
@@ -41,6 +39,14 @@ public class TcpServer extends Thread {
 						break;
 					case "return":
 						System.out.println("return");
+						boolean response = BookServer.returnBook(Integer.valueOf(commandTokens[1]));
+						if(response) {
+							System.out.println(commandTokens[1] + " is returned");
+							os.println(commandTokens[1] + " is returned");
+						} else {
+							System.out.println(commandTokens[1] + " not found, no such borrow record");
+							os.println(commandTokens[1] + " not found, no such borrow record");
+						}
 						break;
 					case "list":
 						System.out.println("list");

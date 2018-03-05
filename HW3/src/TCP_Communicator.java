@@ -26,7 +26,6 @@ public class TCP_Communicator implements Communicator {
 
 	@Override
 	public String send_message(String message) {
-		System.out.println("sending message");
 		try {
 			os.writeBytes(message+"\r\n");
 		} catch (IOException e) {

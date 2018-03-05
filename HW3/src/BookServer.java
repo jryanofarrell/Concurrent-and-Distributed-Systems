@@ -37,7 +37,6 @@ public class BookServer {
       System.out.println("Error while parsing inventory file.");
       e.printStackTrace();
     }
-    printInventory();
     // TODO: handle request from clients
     UdpServer udpHandler = new UdpServer();
     TcpServer tcpHandler = new TcpServer();
@@ -51,7 +50,23 @@ public class BookServer {
       return -1;
     Integer reduced = new Integer(inventory.get(bookName).intValue()-1);
     inventory.put(bookName, reduced);
+    currentRecordList.add(new Record(studentName, bookName, currentRecordID));
     return currentRecordID++;
+  }
+
+  public synchronized static boolean returnBook(int recordID) {
+    Record destroy = null;
+    for(Record r : currentRecordList) {
+      if(r.recordID == recordID) {
+        destroy = r;
+        break;
+      } 
+    }
+    if(destroy != null) {
+      currentRecordList.remove(destroy);
+      return true;
+    }
+    return false;
   }
 
   public static void printInventory() {
