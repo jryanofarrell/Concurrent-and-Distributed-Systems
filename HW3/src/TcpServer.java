@@ -22,47 +22,54 @@ public class TcpServer extends Thread {
 	        is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			os = new PrintStream(clientSocket.getOutputStream());
 			boolean running = true;
-			while(running) {
-				line = is.readLine();
-				String[] commandTokens = line.split(":");
-				switch(commandTokens[0]) {
-					case "borrow":
-						System.out.println("borrow");
-						int recordID = BookServer.borrow(commandTokens[1], commandTokens[2]);
-						if(recordID != -1) {
-							//request approved
-							os.println("Your request has been approved, " + recordID + " " + commandTokens[1] + " " + commandTokens[2]);
-						} else {
-							//request denied
-							os.println("Request Failed - We do not have this book");
-						}
-						break;
-					case "return":
-						System.out.println("return");
-						boolean response = BookServer.returnBook(Integer.valueOf(commandTokens[1]));
-						if(response) {
-							System.out.println(commandTokens[1] + " is returned");
-							os.println(commandTokens[1] + " is returned");
-						} else {
-							System.out.println(commandTokens[1] + " not found, no such borrow record");
-							os.println(commandTokens[1] + " not found, no such borrow record");
-						}
-						break;
-					case "list":
-						//System.out.println("list");
-						os.println("list");
-						break;
-					case "inventory":
-						os.println(BookServer.printInventory());
-						//System.out.println("inventory");
-						break;
-					case "exit":
-						os.println("exit");
-						//System.out.println("exit");
-						running = false;
-						break;
+			synchronized(this) {
+				while(running) {
+					line = is.readLine();
+					String[] commandTokens = line.split(":");
+					switch(commandTokens[0]) {
+						case "borrow":
+							System.out.println("borrow");
+							int recordID = BookServer.borrow(commandTokens[1], commandTokens[2]);
+							os.println("1");
+							if(recordID != -1) {
+								//request approved
+								os.println("Your request has been approved, " + recordID + " " + commandTokens[1] + " " + commandTokens[2]);
+							} else {
+								//request denied
+								os.println("Request Failed - We do not have this book");
+							}
+							break;
+						case "return":
+							System.out.println("return");
+							boolean response = BookServer.returnBook(Integer.valueOf(commandTokens[1]));
+							os.println("1");
+							if(response) {
+								System.out.println(commandTokens[1] + " is returned");
+								os.println(commandTokens[1] + " is returned");
+							} else {
+								System.out.println(commandTokens[1] + " not found, no such borrow record");
+								os.println(commandTokens[1] + " not found, no such borrow record");
+							}
+							break;
+						case "list":
+							//System.out.println("list");
+							os.println(BookServer.getListLength(commandTokens[1]));
+							os.println("list");
+							break;
+						case "inventory":
+							os.println(BookServer.getInventoryLength());						
+							os.println(BookServer.printInventory());
+							//System.out.println("inventory");
+							break;
+						case "exit":
+							os.println("1");
+							os.println("exit");
+							//System.out.println("exit");
+							running = false;
+							break;
+					}
+					//os.println(line);
 				}
-				//os.println(line);
 			}
 			socket.close();
 		} catch(Exception e) {
