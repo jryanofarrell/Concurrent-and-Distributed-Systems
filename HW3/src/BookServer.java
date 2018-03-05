@@ -5,6 +5,7 @@ import java.io.*;
 public class BookServer {
   private static HashMap<String, Integer> inventory = new HashMap<String, Integer>();
   private static ArrayList<String> printOrder = new ArrayList<String>();
+  private static ArrayList<Record> currentRecordList = new ArrayList<Record>();
   //ServerSocket MyService; 
   private static int currentRecordID = 1;
   public static void main (String[] args) {
