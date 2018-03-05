@@ -6,7 +6,7 @@ public class BookServer {
   private static HashMap<String, Integer> inventory = new HashMap<String, Integer>();
   private static ArrayList<String> printOrder = new ArrayList<String>();
   //ServerSocket MyService; 
-  
+  private static int currentRecordID = 1;
   public static void main (String[] args) {
     int tcpPort;
     int udpPort;
@@ -42,6 +42,15 @@ public class BookServer {
     TcpServer tcpHandler = new TcpServer();
     udpHandler.start();
     tcpHandler.start();
+  }
+
+  public synchronized static int borrow(String studentName, String bookName) {
+    System.out.println("borrow " + studentName + " " + bookName);
+    if(inventory.get(bookName) == 0)
+      return -1;
+    Integer reduced = new Integer(inventory.get(bookName).intValue()-1);
+    inventory.put(bookName, reduced);
+    return currentRecordID++;
   }
 
   public static void printInventory() {
