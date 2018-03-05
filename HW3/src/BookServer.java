@@ -38,7 +38,10 @@ public class BookServer {
     }
     printInventory();
     // TODO: handle request from clients
-
+    UdpServer udpHandler = UdpServer();
+    TcpServer tcpHandler = TcpServer();
+    udpHandler.start();
+    tcpHandler.start();
   }
 
   public static void printInventory() {
