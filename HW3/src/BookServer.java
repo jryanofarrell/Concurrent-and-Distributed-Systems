@@ -5,6 +5,8 @@ import java.io.*;
 public class BookServer {
   private static HashMap<String, Integer> inventory = new HashMap<String, Integer>();
   private static ArrayList<String> printOrder = new ArrayList<String>();
+  //ServerSocket MyService; 
+  
   public static void main (String[] args) {
     int tcpPort;
     int udpPort;
