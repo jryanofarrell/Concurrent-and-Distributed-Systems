@@ -65,13 +65,13 @@ public class UdpServer extends Thread {
 						break;
 					case "exit":
 						//os.println("1");
-						return_message ="exit";
 						//System.out.println("exit");
 						break;
 				}
 				InetAddress address = packet.getAddress();
 				int port = packet.getPort();
-				return_message += "\n";
+				if(!commandTokens[0].equals("list"))
+					return_message += "\n";
 				buf = return_message.getBytes();
 		        DatagramPacket return_packet 
 		          = new DatagramPacket(buf, buf.length, address, port);
