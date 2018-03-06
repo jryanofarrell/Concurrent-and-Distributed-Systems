@@ -35,7 +35,7 @@ public class UdpServer extends Thread {
 					
 						} else {
 							//request denied
-							return_message ="Request Failed - We do not have this book";
+							return_message ="Request Failed - Book not available";
 						}
 						break;
 					case "return":

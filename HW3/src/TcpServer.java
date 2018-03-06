@@ -36,7 +36,7 @@ public class TcpServer extends Thread {
 								os.println("Your request has been approved, " + recordID + " " + commandTokens[1] + " " + commandTokens[2]);
 							} else {
 								//request denied
-								os.println("Request Failed - We do not have this book");
+								os.println("Request Failed - Book not available");
 							}
 							break;
 						case "return":
@@ -62,8 +62,8 @@ public class TcpServer extends Thread {
 							//System.out.println("inventory");
 							break;
 						case "exit":
-							os.println("1");
-							os.println("exit");
+							os.println("0");
+							//os.println("exit");
 							//System.out.println("exit");
 							running = false;
 							break;
