@@ -46,6 +46,8 @@ public class BookServer {
 
   public synchronized static int borrow(String studentName, String bookName) {
     System.out.println("borrow " + studentName + " " + bookName);
+    bookName = bookName.trim();
+    System.out.println(inventory);
     if(inventory.get(bookName) == 0 || inventory.get(bookName).intValue()-1 < 0)
       return -1;
     Integer reduced = new Integer(inventory.get(bookName).intValue()-1);

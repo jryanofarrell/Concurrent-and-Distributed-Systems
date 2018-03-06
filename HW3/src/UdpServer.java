@@ -1,8 +1,9 @@
+import java.io.IOException;
 import java.net.*;
 
 public class UdpServer extends Thread {
 	private DatagramSocket socket;
-	private byte[] buf = new byte[256];
+	
 
 	public UdpServer() {
 		try {
@@ -13,20 +14,22 @@ public class UdpServer extends Thread {
 	}
 
 	public void run() {
+
+
 		while(true) {
 			try {
+				byte[] buf = new byte[4096];
 				DatagramPacket packet = new DatagramPacket(buf, buf.length);
 				socket.receive(packet);
-
-				InetAddress address = packet.getAddress();
-				int port = packet.getPort();
-				packet = new DatagramPacket(buf, buf.length, address, port);
+				//packet = new DatagramPacket(buf, buf.length, address, port);
 				String received = new String(packet.getData(), 0, packet.getLength());
 				String[] commandTokens = received.split(":");
 				String return_message = ""; 
+				System.out.println(received);
 				switch(commandTokens[0]) {
 					case "borrow":
 						System.out.println("borrow");
+					
 						int recordID = BookServer.borrow(commandTokens[1], commandTokens[2]);
 						//os.println("1");
 						if(recordID != -1) {
@@ -66,6 +69,9 @@ public class UdpServer extends Thread {
 						//System.out.println("exit");
 						break;
 				}
+				InetAddress address = packet.getAddress();
+				int port = packet.getPort();
+				return_message += "\n";
 				buf = return_message.getBytes();
 		        DatagramPacket return_packet 
 		          = new DatagramPacket(buf, buf.length, address, port);
