@@ -127,7 +127,10 @@ public class BookServer {
         output += k + " " + inventory.get(k)+"\n";
       }  
       oFile.write(output);
+      oFile.close();
+      fw.close();
     } catch (Exception e1) {
+      System.out.println("Exception caught");
       e1.printStackTrace();
     }
   }
