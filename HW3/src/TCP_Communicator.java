@@ -26,6 +26,7 @@ public class TCP_Communicator implements Communicator {
 
 	@Override
 	public String send_message(String message) {
+		String totalResponse = "";
 		try {
 			os.writeBytes(message+"\r");
 		} catch (IOException e) {
@@ -36,12 +37,11 @@ public class TCP_Communicator implements Communicator {
 		String line;
 		try {
 			//while((line = is.readLine()) != null){
-			String totalResponse = "";
 			response = is.readLine();
 			int counter = Integer.valueOf(response);
 			while(counter != 0) {
 				response = is.readLine();
-				totalResponse += response;
+				totalResponse += response+"\n";
 				counter--;
 			}
 			//}
@@ -49,7 +49,7 @@ public class TCP_Communicator implements Communicator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return response; 
+		return totalResponse; 
 		// TODO Auto-generated method stub
 		
 	}

@@ -64,9 +64,28 @@ public class BookServer {
     }
     if(destroy != null) {
       currentRecordList.remove(destroy);
+      Integer incremented = new Integer(inventory.get(destroy.bookName).intValue()+1);
+      inventory.put(destroy.bookName, incremented);
       return true;
     }
     return false;
+  }
+
+  public synchronized static String printList(String studentName) {
+    String output = "";
+    ArrayList<Record> studentRecords = new ArrayList<Record>();
+    for(Record r : currentRecordList) {
+      if(r.studentName.equals(studentName))
+        studentRecords.add(r);
+    }
+    if(studentRecords.size() == 0) {
+      output = "No record found for " + studentName + "\n";
+    } else {
+      for(Record r : studentRecords) {
+        output += r.recordID + " " + r.bookName + "\n";
+      }
+    }
+    return output; 
   }
 
   public synchronized static String printInventory() {
