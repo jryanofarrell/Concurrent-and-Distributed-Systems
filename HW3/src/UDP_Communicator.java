@@ -58,5 +58,11 @@ public class UDP_Communicator implements Communicator {
 		
 	}
 	
-
+	public void close() {
+		try {
+			udpSocket.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -110,4 +110,25 @@ public class BookServer {
     }
     return studentRecords.size();
   }
+
+  public synchronized static void outputInventory() {
+    File fold = new File("inventory.txt");
+    fold.delete();
+    File yourFile = new File("inventory.txt");
+    System.out.println("creating inventory file");
+    BufferedWriter oFile = null; 
+    FileWriter fw = null;
+    try {
+      yourFile.createNewFile();
+      fw= new FileWriter(yourFile.getAbsoluteFile(),true);
+      oFile = new BufferedWriter(fw);
+      String output = "";
+      for(String k : printOrder){
+        output += k + " " + inventory.get(k)+"\n";
+      }  
+      oFile.write(output);
+    } catch (Exception e1) {
+      e1.printStackTrace();
+    }
+  }
 }

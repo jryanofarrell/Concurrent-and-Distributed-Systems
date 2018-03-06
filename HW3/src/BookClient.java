@@ -97,6 +97,8 @@ public class BookClient {
         
         oFile.close();
         fw.close();
+        udp_comm.close();
+        tcp_comm.close();
     } catch (FileNotFoundException e) {
     	e.printStackTrace();
     } catch (IOException e) {

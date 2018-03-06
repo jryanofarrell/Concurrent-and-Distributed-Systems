@@ -57,4 +57,12 @@ public class TCP_Communicator implements Communicator {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void close() {
+		try {
+			tcpSocket.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

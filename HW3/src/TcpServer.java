@@ -65,7 +65,7 @@ public class TcpServer extends Thread {
 							os.println("0");
 							//os.println("exit");
 							//System.out.println("exit");
-							running = false;
+							running = true;
 							break;
 					}
 					//os.println(line);
