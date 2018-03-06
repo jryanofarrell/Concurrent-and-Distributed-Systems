@@ -28,6 +28,8 @@ public class BookClient {
     comm = udp_comm;
     System.out.println("communicators created");
     String outFile = "out_"+clientId+".txt";
+    File fold = new File(outFile);
+    fold.delete();
     File yourFile = new File(outFile);
     System.out.println("creating output file");
     BufferedWriter oFile = null; 
