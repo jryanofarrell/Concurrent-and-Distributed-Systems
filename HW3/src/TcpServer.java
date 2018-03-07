@@ -52,9 +52,9 @@ public class TcpServer extends Thread {
 							}
 							break;
 						case "list":
-							//System.out.println("list");
 							os.println(BookServer.getListLength(commandTokens[1]));
-							os.println("list");
+							//os.println("1");
+							os.print(BookServer.printList(commandTokens[1]));
 							break;
 						case "inventory":
 							os.println(BookServer.getInventoryLength());						
