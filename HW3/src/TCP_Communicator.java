@@ -36,7 +36,7 @@ public class TCP_Communicator implements Communicator {
 		System.out.println(message);
 		String response = "";
 		String line;
-		String totalResponse = "";
+		//String totalResponse = "";
 		try {
 			//while((line = is.readLine()) != null){
 			//String totalResponse = "";
