@@ -58,7 +58,7 @@ public class TcpServer extends Thread {
 							break;
 						case "inventory":
 							os.println(BookServer.getInventoryLength());						
-							os.println(BookServer.printInventory());
+							os.print(BookServer.printInventory());
 							//System.out.println("inventory");
 							break;
 						case "exit":

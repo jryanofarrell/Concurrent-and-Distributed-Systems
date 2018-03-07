@@ -30,7 +30,7 @@ public class UDP_Communicator implements Communicator {
 		byte[] buf;
         buf = message.getBytes();
         DatagramPacket packet 
-          = new DatagramPacket(buf, buf.length, address, 4445);
+          = new DatagramPacket(buf, buf.length, address, socket_number);
         try {
 			udpSocket.send(packet);
 		} catch (IOException e) {
