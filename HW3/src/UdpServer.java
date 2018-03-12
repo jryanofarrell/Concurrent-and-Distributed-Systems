@@ -56,7 +56,7 @@ public class UdpServer extends Thread {
 					case "list":
 						//System.out.println("list");
 						//return_message = BookServer.getListLength(commandTokens[1]);
-						return_message = "list";
+						return_message = BookServer.printList(commandTokens[1]);
 						break;
 					case "inventory":
 						//os.println(BookServer.getInventoryLength());						
