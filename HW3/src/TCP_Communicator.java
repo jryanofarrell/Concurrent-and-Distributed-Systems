@@ -33,7 +33,7 @@ public class TCP_Communicator implements Communicator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(message);
+		//System.out.println(message);
 		String response = "";
 		String line;
 		//String totalResponse = "";
@@ -41,7 +41,7 @@ public class TCP_Communicator implements Communicator {
 			//while((line = is.readLine()) != null){
 			//String totalResponse = "";
 			response = is.readLine();
-			System.out.println(response);
+			//System.out.println(response);
 			int counter = Integer.valueOf(response);
 			while(counter != 0) {
 				response = is.readLine();

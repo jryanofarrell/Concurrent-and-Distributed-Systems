@@ -27,10 +27,10 @@ public class UdpServer extends Thread {
 				//System.out.println("here9");
 				String[] commandTokens = received.split(":");
 				String return_message = ""; 
-				System.out.println(received);
+				//System.out.println(received);
 				switch(commandTokens[0]) {
 					case "borrow":
-						System.out.println("borrow");
+						//System.out.println("borrow");
 					
 						int recordID = BookServer.borrow(commandTokens[1], commandTokens[2]);
 						//os.println("1");
@@ -45,7 +45,7 @@ public class UdpServer extends Thread {
 						return_message += "\n";
 						break;
 					case "return":
-						System.out.println("return");
+						//System.out.println("return");
 						boolean response = BookServer.returnBook(Integer.valueOf(commandTokens[1]));
 						//os.println("1");
 						if(response) {
@@ -76,8 +76,8 @@ public class UdpServer extends Thread {
 				//System.out.println("here0");
 				InetAddress address = packet.getAddress();
 				int port = packet.getPort();
-				if(!commandTokens[0].equals("list"))
-					return_message += "\n";
+//				if(!commandTokens[0].equals("list"))
+//					return_message += "\n";
 				buf = return_message.getBytes();
 		        DatagramPacket return_packet 
 		          = new DatagramPacket(buf, buf.length, address, port);
@@ -85,7 +85,7 @@ public class UdpServer extends Thread {
 				//System.out.println(received);
 				socket.send(return_packet);
 			} catch(Exception e) {
-				//e.printStackTrace();
+				e.printStackTrace();
 			}
 
 		}

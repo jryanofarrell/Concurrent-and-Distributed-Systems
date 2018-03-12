@@ -29,7 +29,7 @@ public class TcpServer extends Thread {
 						String[] commandTokens = line.split(":");
 						switch(commandTokens[0]) {
 							case "borrow":
-								System.out.println("borrow");
+								//System.out.println("borrow");
 								int recordID = BookServer.borrow(commandTokens[1], commandTokens[2]);
 								os.println("1");
 								if(recordID != -1) {
@@ -41,14 +41,14 @@ public class TcpServer extends Thread {
 								}
 								break;
 							case "return":
-								System.out.println("return");
+								//System.out.println("return");
 								boolean response = BookServer.returnBook(Integer.valueOf(commandTokens[1]));
 								os.println("1");
 								if(response) {
-									System.out.println(commandTokens[1] + " is returned");
+									//System.out.println(commandTokens[1] + " is returned");
 									os.println(commandTokens[1] + " is returned");
 								} else {
-									System.out.println(commandTokens[1] + " not found, no such borrow record");
+									//System.out.println(commandTokens[1] + " not found, no such borrow record");
 									os.println(commandTokens[1] + " not found, no such borrow record");
 								}
 								break;
