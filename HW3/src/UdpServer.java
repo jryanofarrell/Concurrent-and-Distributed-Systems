@@ -21,16 +21,7 @@ public class UdpServer extends Thread {
 				byte[] buf = new byte[4096];
 				//System.out.println("here8");
 				DatagramPacket packet = new DatagramPacket(buf, buf.length);
-				System.out.println("here8");
-//				if(socket == null){
-//					continue;
-//				}
-				try{
-					socket.receive(packet);
-				}catch(java.lang.NullPointerException e){
-					continue; 
-				}
-				System.out.println("here9");
+				socket.receive(packet);
 				//packet = new DatagramPacket(buf, buf.length, address, port);
 				String received = new String(packet.getData(), 0, packet.getLength());
 				//System.out.println("here9");
@@ -79,16 +70,14 @@ public class UdpServer extends Thread {
 					case "exit":
 				
 						//os.println("1");
-						//return_message ="exit";
-						//
+						//System.out.println("exit");
 						break;
 				}
 				//System.out.println("here0");
 				InetAddress address = packet.getAddress();
 				int port = packet.getPort();
-				//System.out.println("here1");
-//				if(!return_message.isEmpty())
-//					return_message += "\n";
+				if(!commandTokens[0].equals("list"))
+					return_message += "\n";
 				buf = return_message.getBytes();
 		        DatagramPacket return_packet 
 		          = new DatagramPacket(buf, buf.length, address, port);
