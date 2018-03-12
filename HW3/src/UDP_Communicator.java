@@ -26,8 +26,13 @@ public class UDP_Communicator implements Communicator {
 	}
 	@Override
 	public String send_message(String message) {
-		
-		byte[] buf;
+//		try {
+//			Thread.sleep(100);
+//		} catch (InterruptedException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+		byte[] buf = new byte[4096];
         buf = message.getBytes();
         DatagramPacket packet 
           = new DatagramPacket(buf, buf.length, address, socket_number);
@@ -37,6 +42,7 @@ public class UDP_Communicator implements Communicator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        buf = new byte[4096];
         packet = new DatagramPacket(buf, buf.length);
         try {
 			udpSocket.receive(packet);
@@ -46,6 +52,7 @@ public class UDP_Communicator implements Communicator {
 		}
         String received = new String(
           packet.getData(), 0, packet.getLength());
+        //System.out.println
         return received;
 		// TODO Auto-generated method stub
 		
