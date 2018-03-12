@@ -94,11 +94,10 @@ public class BookClient {
           System.out.print(response);
           oFile.write(response);
         }
-        
+        tcp_comm.close();
+        udp_comm.close();
         oFile.close();
         fw.close();
-        udp_comm.close();
-        tcp_comm.close();
     } catch (FileNotFoundException e) {
     	e.printStackTrace();
     } catch (IOException e) {

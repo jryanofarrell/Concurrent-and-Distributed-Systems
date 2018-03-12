@@ -19,10 +19,21 @@ public class UdpServer extends Thread {
 		while(true) {
 			try {
 				byte[] buf = new byte[4096];
+				//System.out.println("here8");
 				DatagramPacket packet = new DatagramPacket(buf, buf.length);
-				socket.receive(packet);
+				System.out.println("here8");
+//				if(socket == null){
+//					continue;
+//				}
+				try{
+					socket.receive(packet);
+				}catch(java.lang.NullPointerException e){
+					continue; 
+				}
+				System.out.println("here9");
 				//packet = new DatagramPacket(buf, buf.length, address, port);
 				String received = new String(packet.getData(), 0, packet.getLength());
+				//System.out.println("here9");
 				String[] commandTokens = received.split(":");
 				String return_message = ""; 
 				System.out.println(received);
@@ -40,6 +51,7 @@ public class UdpServer extends Thread {
 							//request denied
 							return_message ="Request Failed - Book not available";
 						}
+						return_message += "\n";
 						break;
 					case "return":
 						System.out.println("return");
@@ -52,6 +64,7 @@ public class UdpServer extends Thread {
 							//System.out.println(commandTokens[1] + " not found, no such borrow record");
 							return_message =commandTokens[1] + " not found, no such borrow record";
 						}
+						return_message += "\n";
 						break;
 					case "list":
 						//System.out.println("list");
@@ -64,21 +77,26 @@ public class UdpServer extends Thread {
 						//System.out.println("inventory");
 						break;
 					case "exit":
+				
 						//os.println("1");
-						return_message ="exit";
-						//System.out.println("exit");
+						//return_message ="exit";
+						//
 						break;
 				}
+				//System.out.println("here0");
 				InetAddress address = packet.getAddress();
 				int port = packet.getPort();
-				return_message += "\n";
+				//System.out.println("here1");
+//				if(!return_message.isEmpty())
+//					return_message += "\n";
 				buf = return_message.getBytes();
 		        DatagramPacket return_packet 
 		          = new DatagramPacket(buf, buf.length, address, port);
+		       // System.out.println("here2");
 				//System.out.println(received);
 				socket.send(return_packet);
 			} catch(Exception e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 
 		}

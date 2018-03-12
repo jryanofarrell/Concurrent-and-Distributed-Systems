@@ -60,6 +60,7 @@ public class TCP_Communicator implements Communicator {
 
 	public void close() {
 		try {
+			os.writeBytes("exit");
 			tcpSocket.close();
 		} catch(Exception e) {
 			e.printStackTrace();
