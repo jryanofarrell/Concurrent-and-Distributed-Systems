@@ -38,12 +38,16 @@ public class TextAnalyzer extends Configured implements Tool {
                     sentenceMap.put(word.toString(), 1);
                 }
             }
+            HashSet<String> usedWords = new HashSet<String>();
             for(String k : sentenceMap.keySet()) {
-                if(sentenceMap.get(k) == 1) {
-                    //context word, need to write Tuples
+                //context word, need to write Tuples
+                if(!usedWords.contains(k)) {
+                    usedWords.add(k);
                     for(String k2 : sentenceMap.keySet()) {
                         //loop through sentence words again and write new tuple
-                        if(!k.equals(k2)) {
+                        if(k.equals(k2)) {
+                            context.write(new Text(k), new Tuple(new Text(k2), new IntWritable(sentenceMap.get(k2)-1)));
+                        } else {
                             context.write(new Text(k), new Tuple(new Text(k2), new IntWritable(sentenceMap.get(k2))));
                         }
                     }
@@ -61,11 +65,11 @@ public class TextAnalyzer extends Configured implements Tool {
             // Implementation of you combiner function
             HashMap<String, Integer> queryMap = new HashMap<String, Integer>();
             for(Tuple t : tuples) {
-                if(!queryMap.containsKey(t.queryWord.toString())) {
+                if(queryMap.containsKey(t.queryWord.toString())) {
                     int count = queryMap.get(t.queryWord.toString());
-                    queryMap.put(t.queryWord.toString(), count + 1);
+                    queryMap.put(t.queryWord.toString(), count + t.count.get());
                 } else {
-                    queryMap.put(t.queryWord.toString(), 1);
+                    queryMap.put(t.queryWord.toString(), t.count.get());
                 }                
             }
             for(String k : queryMap.keySet()) {
