@@ -24,20 +24,22 @@ public class TextAnalyzer extends Configured implements Tool {
             throws IOException, InterruptedException
         {
             // Implementation of you mapper function
-            StringTokenizer itr = new StringTokenizer(value.toString().replaceAll("[^A-Za-z0-9]", "").toLowerCase());
+            StringTokenizer itr = new StringTokenizer(value.toString().replaceAll("[^A-Za-z0-9]", " ").toLowerCase());
+            HashMap<String, Integer> sentenceMap = new HashMap<String, Integer>();
             while (itr.hasMoreTokens()) {
                 word.set(itr.nextToken());
-                if(map.containsKey(word.toString())) {
-                    System.out.println("yes! - " + map.get(word.toString()));
+                if(sentenceMap.containsKey(word.toString())) {
                     int count = map.get(word.toString());
                     map.put(word.toString(), count + 1);
                 } else {
                     map.put(word.toString(), 1);
-                    System.out.println("no! - adding " + word.toString());
                 }
             }
-            for(String k : map.keySet()) {
-                context.write(new Text(k), new Text(map.get(k).toString()));
+            for(String k : sentenceMap) {
+                if(sentenceMap.get(k) == 1) {
+                    //context word, need to write a result
+                    context.write(new Text(k), new Text(map.get(k).toString()));
+                }
             }
         }
     }
