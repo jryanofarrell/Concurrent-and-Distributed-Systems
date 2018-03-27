@@ -8,17 +8,18 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import java.util.StringTokenizer;
 import java.util.HashMap;
+import java.util.HashSet;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import java.io.IOException;
+import java.io.DataInput;
+import java.io.DataOutput;
 // Do not change the signature of this class
 public class TextAnalyzer extends Configured implements Tool {
-    static HashMap<String,Integer> map = new HashMap<String,Integer>();
-
     // Replace "?" with your own output key / value types
     // The four template data types are:
     //     <Input Key Type, Input Value Type, Output Key Type, Output Value Type>
-    public static class TextMapper extends Mapper<LongWritable, Text, Text, Text> {
+    public static class TextMapper extends Mapper<LongWritable, Text, Text, Tuple> {
         private Text word = new Text();
         public void map(LongWritable key, Text value, Context context)
             throws IOException, InterruptedException
@@ -29,16 +30,21 @@ public class TextAnalyzer extends Configured implements Tool {
             while (itr.hasMoreTokens()) {
                 word.set(itr.nextToken());
                 if(sentenceMap.containsKey(word.toString())) {
-                    int count = map.get(word.toString());
-                    map.put(word.toString(), count + 1);
+                    int count = sentenceMap.get(word.toString());
+                    sentenceMap.put(word.toString(), count + 1);
                 } else {
-                    map.put(word.toString(), 1);
+                    sentenceMap.put(word.toString(), 1);
                 }
             }
-            for(String k : sentenceMap) {
+            for(String k : sentenceMap.keySet()) {
                 if(sentenceMap.get(k) == 1) {
-                    //context word, need to write a result
-                    context.write(new Text(k), new Text(map.get(k).toString()));
+                    //context word, need to write Tuples
+                    for(String k2 : sentenceMap.keySet()) {
+                        //loop through sentence words again and write new tuple
+                        if(!k.equals(k2)) {
+                            context.write(new Text("context word is " + k), new Tuple(new Text(k2), new IntWritable(sentenceMap.get(k2))));
+                        }
+                    }
                 }
             }
         }
@@ -46,17 +52,30 @@ public class TextAnalyzer extends Configured implements Tool {
 
     // Replace "?" with your own key / value types
     // NOTE: combiner's output key / value types have to be the same as those of mapper
-    public static class TextCombiner extends Reducer<LongWritable, Text, Text, Text> {
+    public static class TextCombiner extends Reducer<LongWritable, Text, Text, Tuple> {
         public void reduce(Text key, Iterable<Tuple> tuples, Context context)
             throws IOException, InterruptedException
         {
             // Implementation of you combiner function
+            HashSet<String> wordsUsed = new HashSet<String>();
+            for(Tuple t : tuples) {
+                if(!wordsUsed.contains(t.queryWord.toString())) {
+                    wordsUsed.add(t.queryWord.toString());
+                    int totalSum = t.count.get();
+                    for(Tuple t2 : tuples) {
+                        if(t2.queryWord.equals(t.queryWord.toString()) && t!=t2) {
+                            totalSum += t2.count.get();
+                        }
+                    }
+                    context.write(key, new Tuple(t.queryWord, new IntWritable(totalSum)));
+                }
+            }
         }
     }
 
     // Replace "?" with your own input key / value types, i.e., the output
     // key / value types of your mapper function
-    public static class TextReducer extends Reducer<Text, Text, Text, Text> {
+    public static class TextReducer extends Reducer<Text, Tuple, Text, Text> {
         private final static Text emptyText = new Text("");
         private static Text queryWordText = new Text("");
         public void reduce(Text key, Iterable<Tuple> queryTuples, Context context)
@@ -68,13 +87,18 @@ public class TextAnalyzer extends Configured implements Tool {
             // code to fit with your reducer function.
             //   Write out the current context key
             context.write(key, emptyText);
-            System.out.println("IN MAP REDUCE");
             //   Write out query words and their count
-            for(String queryWord: map.keySet()){
+            /*for(String queryWord: map.keySet()){
                 String count = map.get(queryWord).toString() + ">";
                 queryWordText.set("<" + queryWord + ",");
                 context.write(queryWordText, new Text(count));
                 System.out.println(queryWord + " " + count);
+            }*/
+            for(Tuple t : queryTuples) {
+                String count = t.count.toString() + ">";
+                queryWordText.set("<" + t.queryWord + ",");
+                context.write(queryWordText, new Text(count));
+                System.out.println(t.queryWord + " " + count);
             }
             //   Empty line for ending the current context key
             context.write(emptyText, emptyText);
@@ -91,7 +115,7 @@ public class TextAnalyzer extends Configured implements Tool {
         // Setup MapReduce job
         job.setMapperClass(TextMapper.class);
         //   Uncomment the following line if you want to use Combiner class
-        // job.setCombinerClass(TextCombiner.class);
+        job.setCombinerClass(TextCombiner.class);
         job.setReducerClass(TextReducer.class);
 
         // Specify key / value types (Don't change them for the purpose of this assignment)
@@ -99,8 +123,8 @@ public class TextAnalyzer extends Configured implements Tool {
         job.setOutputValueClass(Text.class);
         //   If your mapper and combiner's  output types are different from Text.class,
         //   then uncomment the following lines to specify the data types.
-        //job.setMapOutputKeyClass(?.class);
-        //job.setMapOutputValueClass(?.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(Tuple.class);
 
         // Input
         FileInputFormat.addInputPath(job, new Path(args[0]));
@@ -120,12 +144,65 @@ public class TextAnalyzer extends Configured implements Tool {
         System.exit(res);
     }
 
-    public static class Tuple {
-        String contextWord;
-        HashMap<String, Integer> queryMap = new HashMap<String, Integer>();
+    public static class Tuple implements WritableComparable<Tuple> {
+        Text queryWord;
+        IntWritable count;
+        
+        //Default Constructor
+        public Tuple() {
+            queryWord = new Text();
+            count = new IntWritable();
+        }
 
-        public Tuple(String cw) {
-            contextWord = cw;
+        //Custom Constructor
+        public Tuple(Text qw, IntWritable cnt) {
+            queryWord = qw;
+            count = cnt;
+        }
+        
+        //Setter method to set the values of Tuple object
+        public void set(Text qw, IntWritable cnt) {
+            queryWord = qw;
+            count = cnt;
+        }     
+
+        @Override
+        //overriding default readFields method. 
+        //It de-serializes the byte stream data
+        public void readFields(DataInput in) throws IOException {
+            queryWord.readFields(in);
+            count.readFields(in);
+        }    
+
+        @Override
+        //It serializes object data into byte stream data
+        public void write(DataOutput out) throws IOException 
+        {
+            queryWord.write(out);
+            count.write(out);
+        }       
+
+        @Override
+        public int compareTo(Tuple o) 
+        {
+            return queryWord.compareTo(o.queryWord);
+        }
+
+        @Override
+        public boolean equals(Object o) 
+        {
+            if (o instanceof Tuple) 
+            {
+                Tuple other = (Tuple) o;
+                return queryWord.equals(other.queryWord);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return queryWord.hashCode();
         }
     }
 }
