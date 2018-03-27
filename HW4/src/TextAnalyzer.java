@@ -1,3 +1,6 @@
+//Mark Carter, Ryan O'Farrell
+//mac7865, jro769
+
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
@@ -45,7 +48,7 @@ public class TextAnalyzer extends Configured implements Tool {
                     usedWords.add(k);
                     for(String k2 : sentenceMap.keySet()) {
                         //loop through sentence words again and write new tuple
-                        if(k.equals(k2)) {
+                        if(k.equals(k2) && sentenceMap.get(k2) != 1) {
                             context.write(new Text(k), new Tuple(new Text(k2), new IntWritable(sentenceMap.get(k2)-1)));
                         } else {
                             context.write(new Text(k), new Tuple(new Text(k2), new IntWritable(sentenceMap.get(k2))));
@@ -111,9 +114,13 @@ public class TextAnalyzer extends Configured implements Tool {
             //   Write out the current context key
             // write out maximum occurance for word
             context.write(new Text(key.toString() + " " + ((Map.Entry<String, Integer>)sortedTuplesList.get(0)).getValue()), emptyText);
-            //   Write out query words and their count, starting with max occurance
-            context.write(new Text("<" + ((Map.Entry<String, Integer>) sortedTuplesList.get(0)).getKey() + ","), new Text(((Map.Entry<String, Integer>) sortedTuplesList.get(0)).getValue() + ">"));
-            sortedTuplesList.remove(0);
+
+            int maxValue = ((Map.Entry<String, Integer>) sortedTuplesList.get(0)).getValue();
+            while(sortedTuplesList.size() > 0 && ((Map.Entry<String, Integer>) sortedTuplesList.get(0)).getValue() == maxValue) {
+                //   Write out query words and their count, starting with max occurance
+                context.write(new Text("<" + ((Map.Entry<String, Integer>) sortedTuplesList.get(0)).getKey() + ","), new Text(((Map.Entry<String, Integer>) sortedTuplesList.get(0)).getValue() + ">"));
+                sortedTuplesList.remove(0);
+            }
             Collections.sort(sortedTuplesList, new Comparator() {
                 public int compare(Object o1, Object o2) {
                     return ((Map.Entry<String, Integer>) o2).getKey()
