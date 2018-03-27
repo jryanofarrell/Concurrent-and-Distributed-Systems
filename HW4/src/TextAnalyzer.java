@@ -37,7 +37,7 @@ public class TextAnalyzer extends Configured implements Tool {
                 }
             }
             for(String k : map.keySet()) {
-                context.write(new Text(k), new Text(map.get(key).toString()));
+                context.write(new Text(k), new Text(map.get(k).toString()));
             }
         }
     }
