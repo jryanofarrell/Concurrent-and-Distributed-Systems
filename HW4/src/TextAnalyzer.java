@@ -36,6 +36,9 @@ public class TextAnalyzer extends Configured implements Tool {
                     System.out.println("no! - adding " + word.toString());
                 }
             }
+            for(String k : map.keySet()) {
+                context.write(new Text(k), new Text(map.get(key).toString()));
+            }
         }
     }
 
@@ -64,9 +67,6 @@ public class TextAnalyzer extends Configured implements Tool {
             //   Write out the current context key
             context.write(key, emptyText);
             System.out.println("IN MAP REDUCE");
-            for(String q : map.keySet()) {
-                System.out.println("IN MAP REDUCE");
-            }
             //   Write out query words and their count
             for(String queryWord: map.keySet()){
                 String count = map.get(queryWord).toString() + ">";
