@@ -14,6 +14,8 @@ import org.apache.hadoop.util.ToolRunner;
 import java.io.IOException;
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.util.*;
+
 // Do not change the signature of this class
 public class TextAnalyzer extends Configured implements Tool {
     // Replace "?" with your own output key / value types
@@ -42,7 +44,7 @@ public class TextAnalyzer extends Configured implements Tool {
                     for(String k2 : sentenceMap.keySet()) {
                         //loop through sentence words again and write new tuple
                         if(!k.equals(k2)) {
-                            context.write(new Text("context word is " + k), new Tuple(new Text(k2), new IntWritable(sentenceMap.get(k2))));
+                            context.write(new Text(k), new Tuple(new Text(k2), new IntWritable(sentenceMap.get(k2))));
                         }
                     }
                 }
@@ -82,11 +84,28 @@ public class TextAnalyzer extends Configured implements Tool {
             throws IOException, InterruptedException
         {
             // Implementation of you reducer function
+            
+            HashMap<String, Integer> queryMap = new HashMap<String, Integer>();
+            for(Tuple t : queryTuples) {
+                if(!queryMap.containsKey(t.queryWord.toString())) {
+                    queryMap.put(t.queryWord.toString(), t.count.get());
+                } else {
+                    queryMap.put(t.queryWord.toString(), queryMap.get(t.queryWord.toString()).intValue()+t.count.get());
+                }
+            }
+
+            Object[] sortedTuples = queryMap.entrySet().toArray();
+            Arrays.sort(sortedTuples, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    return ((Map.Entry<String, Integer>) o2).getValue()
+                               .compareTo(((Map.Entry<String, Integer>) o1).getValue());
+                }
+            });
 
             // Write out the results; you may change the following example
             // code to fit with your reducer function.
             //   Write out the current context key
-            context.write(key, emptyText);
+            context.write(new Text("context word is "+key.toString()), emptyText);
             //   Write out query words and their count
             /*for(String queryWord: map.keySet()){
                 String count = map.get(queryWord).toString() + ">";
@@ -94,11 +113,10 @@ public class TextAnalyzer extends Configured implements Tool {
                 context.write(queryWordText, new Text(count));
                 System.out.println(queryWord + " " + count);
             }*/
-            for(Tuple t : queryTuples) {
-                String count = t.count.toString() + ">";
-                queryWordText.set("<" + t.queryWord + ",");
+            for (Object o : sortedTuples) {
+                String count = ((Map.Entry<String, Integer>) o).getValue() + ">";
+                queryWordText.set("<" + ((Map.Entry<String, Integer>) o).getKey() + ",");
                 context.write(queryWordText, new Text(count));
-                System.out.println(t.queryWord + " " + count);
             }
             //   Empty line for ending the current context key
             context.write(emptyText, emptyText);
@@ -115,7 +133,7 @@ public class TextAnalyzer extends Configured implements Tool {
         // Setup MapReduce job
         job.setMapperClass(TextMapper.class);
         //   Uncomment the following line if you want to use Combiner class
-        job.setCombinerClass(TextCombiner.class);
+        //job.setCombinerClass(TextCombiner.class);
         job.setReducerClass(TextReducer.class);
 
         // Specify key / value types (Don't change them for the purpose of this assignment)
