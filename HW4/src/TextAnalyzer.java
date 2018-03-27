@@ -105,18 +105,23 @@ public class TextAnalyzer extends Configured implements Tool {
                 }
             });
 
+            ArrayList<Object> sortedTuplesList = new ArrayList<Object>(Arrays.asList(sortedTuples));
             // Write out the results; you may change the following example
             // code to fit with your reducer function.
             //   Write out the current context key
-            context.write(new Text("context word is "+key.toString()), emptyText);
-            //   Write out query words and their count
-            /*for(String queryWord: map.keySet()){
-                String count = map.get(queryWord).toString() + ">";
-                queryWordText.set("<" + queryWord + ",");
-                context.write(queryWordText, new Text(count));
-                System.out.println(queryWord + " " + count);
-            }*/
-            for (Object o : sortedTuples) {
+            // write out maximum occurance for word
+            context.write(new Text(key.toString() + " " + ((Map.Entry<String, Integer>)sortedTuplesList.get(0)).getValue()), emptyText);
+            //   Write out query words and their count, starting with max occurance
+            context.write(new Text("<" + ((Map.Entry<String, Integer>) sortedTuplesList.get(0)).getKey() + ","), new Text(((Map.Entry<String, Integer>) sortedTuplesList.get(0)).getValue() + ">"));
+            sortedTuplesList.remove(0);
+            Collections.sort(sortedTuplesList, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    return ((Map.Entry<String, Integer>) o2).getKey()
+                               .compareTo(((Map.Entry<String, Integer>) o1).getKey());
+                }
+            });
+            Collections.reverse(sortedTuplesList);
+            for (Object o : sortedTuplesList) {
                 String count = ((Map.Entry<String, Integer>) o).getValue() + ">";
                 queryWordText.set("<" + ((Map.Entry<String, Integer>) o).getKey() + ",");
                 context.write(queryWordText, new Text(count));
