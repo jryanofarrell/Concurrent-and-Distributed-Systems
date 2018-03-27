@@ -59,18 +59,17 @@ public class TextAnalyzer extends Configured implements Tool {
             throws IOException, InterruptedException
         {
             // Implementation of you combiner function
-            HashSet<String> wordsUsed = new HashSet<String>();
+            HashMap<String, Integer> queryMap = new HashMap<String, Integer>();
             for(Tuple t : tuples) {
-                if(!wordsUsed.contains(t.queryWord.toString())) {
-                    wordsUsed.add(t.queryWord.toString());
-                    int totalSum = t.count.get();
-                    for(Tuple t2 : tuples) {
-                        if(t2.queryWord.equals(t.queryWord.toString()) && t!=t2) {
-                            totalSum += t2.count.get();
-                        }
-                    }
-                    context.write(key, new Tuple(t.queryWord, new IntWritable(totalSum)));
-                }
+                if(!queryMap.containsKey(t.queryWord.toString())) {
+                    int count = queryMap.get(t.queryWord.toString());
+                    queryMap.put(t.queryWord.toString(), count + 1);
+                } else {
+                    queryMap.put(t.queryWord.toString(), 1);
+                }                
+            }
+            for(String k : queryMap.keySet()) {
+                context.write(key, new Tuple(new Text(k), new IntWritable(queryMap.get(k))));
             }
         }
     }
@@ -133,7 +132,7 @@ public class TextAnalyzer extends Configured implements Tool {
         // Setup MapReduce job
         job.setMapperClass(TextMapper.class);
         //   Uncomment the following line if you want to use Combiner class
-        //job.setCombinerClass(TextCombiner.class);
+        job.setCombinerClass(TextCombiner.class);
         job.setReducerClass(TextReducer.class);
 
         // Specify key / value types (Don't change them for the purpose of this assignment)
