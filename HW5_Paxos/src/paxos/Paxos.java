@@ -105,7 +105,14 @@ public class Paxos implements PaxosRMI, Runnable{
      * The application will call Status() to find out if/when agreement
      * is reached.
      */
+    int seq;
+    Object v; 
     public void Start(int seq, Object value){
+    	Paxos p = new Paxos(me,peers,ports); 
+    	p.seq = seq;
+    	p.v = value; 
+    	Thread t = new Thread(p);
+    	t.start(); 
         // Your code here
     }
 
