@@ -11,7 +11,7 @@ import java.util.HashMap;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import java.io.IOException;
-// Do not change the signature of this class
+// Do not change the signature of this classsdds
 public class TextAnalyzer extends Configured implements Tool {
     static HashMap<String,Integer> map = new HashMap<String,Integer>();
 

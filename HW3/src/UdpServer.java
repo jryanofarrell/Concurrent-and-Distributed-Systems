@@ -68,7 +68,7 @@ public class UdpServer extends Thread {
 						//System.out.println("inventory");
 						break;
 					case "exit":
-				
+						//return_message = "exit";
 						//os.println("1");
 						//System.out.println("exit");
 						break;
