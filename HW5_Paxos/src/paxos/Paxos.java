@@ -20,7 +20,7 @@ public class Paxos implements PaxosRMI, Runnable{
 
     AtomicBoolean dead;// for testing
     AtomicBoolean unreliable;// for testing
-
+    static int prop_num = 0; 
     // Your data here
 
 
@@ -108,11 +108,13 @@ public class Paxos implements PaxosRMI, Runnable{
     int seq;
     Object v; 
     public void Start(int seq, Object value){
-    	Paxos p = new Paxos(me,peers,ports); 
-    	p.seq = seq;
-    	p.v = value; 
-    	Thread t = new Thread(p);
+    	//Paxos p = new Paxos(me,peers,ports); 
+    	mutex.lock();
+    	this.seq = seq;
+    	this.v = value; 
+    	Thread t = new Thread(this);
     	t.start(); 
+    	mutex.unlock();
         // Your code here
     }
 
