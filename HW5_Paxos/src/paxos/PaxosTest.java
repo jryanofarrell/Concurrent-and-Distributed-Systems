@@ -130,22 +130,26 @@ public class PaxosTest {
         final int npaxos = 5;
         Paxos[] pxa = initPaxos(npaxos);
 
-        System.out.println("Test: Deaf proposer ...");
+        //System.out.println("Test: Deaf proposer ...");
         pxa[0].Start(0, "hello");
         waitn(pxa, 0, npaxos);
 
+        //System.out.println("do we get here");
         pxa[1].ports[0]= 1;
         pxa[1].ports[npaxos-1]= 1;
         pxa[1].Start(1, "goodbye");
+        //System.out.println("do we get here");
         waitmajority(pxa, 1);
         try {
             Thread.sleep(1000);
         } catch (Exception e){
             e.printStackTrace();
         }
+        //System.out.println("do we get here2");
         int nd = ndecided(pxa, 1);
+        //System.out.println("do we get here5");
         assertFalse("a deaf peer heard about a decision " + nd, nd != npaxos-2);
-
+        //System.out.println("do we get here4");
         pxa[0].Start(1, "xxx");
         waitn(pxa, 1, npaxos-1);
         try {
@@ -153,6 +157,7 @@ public class PaxosTest {
         } catch (Exception e){
             e.printStackTrace();
         }
+        System.out.println("do we get here3");
         nd = ndecided(pxa, 1);
         assertFalse("a deaf peer heard about a decision " + nd, nd != npaxos-1);
 

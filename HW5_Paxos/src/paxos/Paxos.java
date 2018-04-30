@@ -56,6 +56,7 @@ public class Paxos implements PaxosRMI, Runnable{
             stub = (PaxosRMI) UnicastRemoteObject.exportObject(this, this.ports[this.me]);
             registry.rebind("Paxos", stub);
         } catch(Exception e){
+        	System.out.print("Fucked up the registry");
             //e.printStackTrace();
         }
     }
@@ -129,6 +130,7 @@ public class Paxos implements PaxosRMI, Runnable{
     	Thread t = new Thread(this);
         Instance i = new Instance(t, seq);
         instances.add(i);
+        decided = false; 
     	t.start(); 
     	mutex.unlock();
         // Your code here
@@ -146,6 +148,8 @@ public class Paxos implements PaxosRMI, Runnable{
     		int num_accepts = 0; 
 	    	for(int id = 0; id<num_ports; id++){
 	    		Response resp = Call("Prepare",req,id);
+	    		if(resp == null)
+	    			continue;
 	    		if(resp.ok){
 	    			if(resp.highest_accept_seen > req.prop_num){
 	    				req.value = resp.value; 
@@ -196,6 +200,7 @@ public class Paxos implements PaxosRMI, Runnable{
     	Response resp = new Response();
     	resp.highest_done_seq = highest_done_seq;
     	if (req.prop_num>highest_prepare_seen){
+    		decided = false; 
     		//Response resp = new Response();
     		highest_prepare_seen = req.prop_num;
     		resp.highest_prepare_seen = highest_prepare_seen;
@@ -217,6 +222,7 @@ public class Paxos implements PaxosRMI, Runnable{
     	}
     	Response resp = new Response();
     	if(req.prop_num > highest_accept_seen){
+    		decided = false;
     		highest_accept_seen = req.prop_num;
     		v = req.value;
     		highest_prepare_seen = req.prop_num;
@@ -230,6 +236,7 @@ public class Paxos implements PaxosRMI, Runnable{
     public Response Decide(Request req){
     	decided = true;
     	v = req.value;
+    	System.out.println(req.value);
     	return null; 
         // your code here
 
