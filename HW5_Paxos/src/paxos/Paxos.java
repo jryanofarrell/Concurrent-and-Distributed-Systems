@@ -199,7 +199,7 @@ public class Paxos implements PaxosRMI, Runnable{
     		//return resp;
     	}
     	
-    	return resp
+    	return resp;
         // your code here
 
     }
