@@ -157,7 +157,11 @@ public class Paxos implements PaxosRMI, Runnable{
 	    				break;			
 	    			}
 	    		}
-	    		highest_done_seq[id] = resp.highest_done_seq;
+	    		for(int i = 0; i<num_ports; i++){
+	    			if(highest_done_seq[i]<resp.highest_done_seq[i]){
+	    				highest_done_seq[i] = resp.highest_done_seq[i];
+	    			}
+	    		}
 	    	}
 	    	if(prepare_ok){
 	    		for(int id = 0; id<num_ports; id++){
@@ -188,7 +192,7 @@ public class Paxos implements PaxosRMI, Runnable{
     		highest_seq_seen = req.seq;
     	}
     	Response resp = new Response();
-    	resp.highest_done_seq = highest_done_seq[me];
+    	resp.highest_done_seq = highest_done_seq;
     	if (req.prop_num>highest_prepare_seen){
     		//Response resp = new Response();
     		highest_prepare_seen = req.prop_num;

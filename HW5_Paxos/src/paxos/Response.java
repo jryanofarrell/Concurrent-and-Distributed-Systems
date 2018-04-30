@@ -19,7 +19,7 @@ public class Response implements Serializable {
 	public boolean ok = false;
 
 
-	public int highest_done_seq;
+	public int[] highest_done_seq;
     
 
     // Your constructor and methods here
