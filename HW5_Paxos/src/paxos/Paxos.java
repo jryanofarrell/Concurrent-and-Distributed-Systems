@@ -14,13 +14,13 @@ public class Paxos implements PaxosRMI, Runnable{
     String[] peers; // hostname
     int[] ports; // host port
     int me; // index into peers[]
-
+    int num_ports;
     Registry registry;
     PaxosRMI stub;
 
     AtomicBoolean dead;// for testing
     AtomicBoolean unreliable;// for testing
-    static int prop_num = 0; 
+    static int glob_prop_num = 0; 
     // Your data here
 
 
@@ -40,7 +40,7 @@ public class Paxos implements PaxosRMI, Runnable{
 
         // Your initialization code here
 
-
+        num_ports = peers.length;
         // register peers, do not modify this part
         try{
             System.setProperty("java.rmi.server.hostname", this.peers[this.me]);
@@ -106,12 +106,15 @@ public class Paxos implements PaxosRMI, Runnable{
      * is reached.
      */
     int seq;
-    Object v; 
+    Object v;
+    int prop_num;
     public void Start(int seq, Object value){
     	//Paxos p = new Paxos(me,peers,ports); 
     	mutex.lock();
     	this.seq = seq;
     	this.v = value; 
+    	this.prop_num = glob_prop_num;
+    	glob_prop_num ++; 
     	Thread t = new Thread(this);
     	t.start(); 
     	mutex.unlock();
@@ -120,15 +123,36 @@ public class Paxos implements PaxosRMI, Runnable{
 
     @Override
     public void run(){
+    	int num_accepts = 0;
+    	Request req = new Request(seq, prop_num, v);
+    	//int id = 0;
+    	boolean accepted = false;
+    	for(int id = 0; id<num_ports; id++){
+    		Response res = Call("Prepare",req,id);
+    		if(res.value.equals(v)){
+    			num_accepts++;
+    			if(num_accepts>num_ports/2){
+    				accepted = true;
+    				break;			
+    			}
+    		}
+    	}
         //Your code here
     }
 
     // RMI handler
+    int highest_prepare_seen = -1;
     public Response Prepare(Request req){
+    	if (req.prop_num>highest_prepare_seen){
+    		Response resp = new Response();
+    		highest_prepare_seen = req.prop_num;
+    		resp.highest_prepare_seen = highest_prepare_seen;
+    	}
         // your code here
 
     }
 
+    int highest_accept_seen = -1; 
     public Response Accept(Request req){
         // your code here
 
@@ -145,6 +169,7 @@ public class Paxos implements PaxosRMI, Runnable{
      *
      * see the comments for Min() for more explanation.
      */
+    
     public void Done(int seq) {
         // Your code here
     }
