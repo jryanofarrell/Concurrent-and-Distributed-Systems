@@ -27,6 +27,8 @@ public class Paxos implements PaxosRMI, Runnable{
 
     ArrayList<Instance> instances = new ArrayList<Instance>();
     static Hashtable<Integer,Decided_State[]> sequence_status;
+    Hashtable<Integer,Request> prepare_seq_req = new Hashtable<Integer,Request>();
+    Hashtable<Integer,Request> accept_seq_req = new Hashtable<Integer,Request>();
     // Your data here
 
 
@@ -124,9 +126,9 @@ public class Paxos implements PaxosRMI, Runnable{
     	//Paxos p = new Paxos(me,peers,ports); 
     	mutex.lock();
     	this.seq = seq;
-    	if(seq > highest_seq_seen){
-    		highest_seq_seen = seq;
-    	}
+//    	if(seq > highest_seq_seen){
+//    		highest_seq_seen = seq;
+//    	}
     	this.v = value; 
     	this.prop_num = glob_prop_num;
     	glob_prop_num ++;
@@ -187,22 +189,22 @@ public class Paxos implements PaxosRMI, Runnable{
 	    		if(resp == null)
 	    			continue;
 	    		if(resp.ok){
-	    			if(resp.highest_accept_seen > req.prop_num){
-	    				System.out.println("CHANGING VALUE");
-	    				req.value = resp.value; 
-	    				req.prop_num = resp.highest_accept_seen; 
-	    			}
+//	    			if(resp.highest_accept_seen > req.prop_num){
+//	    				System.out.println("CHANGING VALUE");
+//	    				req.value = resp.value; 
+//	    				req.prop_num = resp.highest_accept_seen; 
+//	    			}
 	    			num_prepares++;
 	    			if(num_prepares>num_ports/2){
 	    				prepare_ok = true;
 	    				//break;			
 	    			}
 	    		}
-	    		for(int i = 0; i<resp.highest_done_seq.length; i++){
-	    			if(highest_done_seq[i]<resp.highest_done_seq[i]){
-	    				highest_done_seq[i] = resp.highest_done_seq[i];
-	    			}
-	    		}
+//	    		for(int i = 0; i<resp.highest_done_seq.length; i++){
+//	    			if(highest_done_seq[i]<resp.highest_done_seq[i]){
+//	    				highest_done_seq[i] = resp.highest_done_seq[i];
+//	    			}
+//	    		}
 	    	}
 	    	if(prepare_ok){
 	    		for(int id = 0; id<num_ports; id++){
@@ -229,55 +231,46 @@ public class Paxos implements PaxosRMI, Runnable{
         //Your code here
     }
 
-    // RMI handler
-    int highest_prepare_seen = -1;
+    
     public Response Prepare(Request req){
     	int inner_seq = req.seq;
-//    	if(!sequence_status.containsKey(inner_seq)){
-//    		Decided_State ds = new Decided_State(-1);
-//    		sequence_status.put(inner_seq, ds);
-//    	}
-//    	if(sequence_status.get(inner_seq).prop_num < req.prop_num){
-//    		sequence_status.get(inner_seq).isDecided = false; 
-//    		sequence_status.get(inner_seq).prop_num = req.prop_num;
-//    	}
     	System.out.println("Prepare Paxos["+me+"]");
-    	if(req.seq > highest_seq_seen){
-    		highest_seq_seen = req.seq;
-    	}
     	Response resp = new Response();
-    	resp.highest_done_seq = highest_done_seq;
-    	if (req.prop_num>highest_prepare_seen){
-    		//decided = false; 
-    		//Response resp = new Response();
-    		
-    		highest_prepare_seen = req.prop_num;
-    		resp.highest_prepare_seen = highest_prepare_seen;
-    		resp.highest_accept_seen = highest_accept_seen;
-    		resp.value = v;
-    		resp.ok = true;
-    		//return resp;
+    	if(prepare_seq_req.containsKey(req.seq) && prepare_seq_req.get(req.seq).prop_num > req.prop_num){
+    		return resp;
     	}
-    	
+    	else{
+    		resp.value = req.value;
+    		resp.ok = true; 
+    		prepare_seq_req.put(req.seq, req);
+    	}
     	return resp;
         // your code here
 
     }
 
-    int highest_accept_seen = -1; 
+ 
     public Response Accept(Request req){
     	System.out.println("Accept Paxos["+me+"]");
-    	if(req.seq > highest_seq_seen){
-    		highest_seq_seen = req.seq;
-    	}
+//    	if(req.seq > highest_seq_seen){
+//    		highest_seq_seen = req.seq;
+//    	}
     	Response resp = new Response();
-    	if(req.prop_num > highest_accept_seen){
-    		//decided = false;
-    		highest_accept_seen = req.prop_num;
-    		v = req.value;
-    		highest_prepare_seen = req.prop_num;
-    		resp.ok = true;
+    	if(accept_seq_req.containsKey(req.seq) && accept_seq_req.get(req.seq).prop_num > req.prop_num){
+    		return resp;
     	}
+    	else{
+    		resp.value = req.value;
+    		resp.ok = true; 
+    		accept_seq_req.put(req.seq, req);
+    	}
+//    	if(req.prop_num > highest_accept_seen){
+//    		//decided = false;
+//    		//highest_accept_seen = req.prop_num;
+//    		v = req.value;
+//    		//highest_prepare_seen = req.prop_num;
+//    		resp.ok = true;
+//    	}
     	return resp;
         // your code here
 
@@ -322,9 +315,9 @@ public class Paxos implements PaxosRMI, Runnable{
      * highest instance sequence known to
      * this peer.
      */
-    int highest_seq_seen = -1;
+
     public int Max(){
-    	return highest_seq_seen;
+    	return 0;//highest_seq_seen;
         // Your code here
     }
 
