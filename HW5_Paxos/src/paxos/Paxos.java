@@ -242,8 +242,8 @@ public class Paxos implements PaxosRMI, Runnable{
     
    
     public void Done(int seq) {
-    	if(seq+1 > highest_done_seq[me])
-    		highest_done_seq[me] = seq+1;
+    	if(seq > highest_done_seq[me])
+    		highest_done_seq[me] = seq;
         // Your code here
         for(int count = 0; count < instances.size(); count++) {
             if(instances.get(count).seq <= seq) {
@@ -301,7 +301,7 @@ public class Paxos implements PaxosRMI, Runnable{
     			num = min;
     		}
     	}
-    	return min; 
+    	return min+1; 
         // Your code here
 
     }
