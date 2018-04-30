@@ -26,7 +26,7 @@ public class Paxos implements PaxosRMI, Runnable{
     static int glob_prop_num = 0; 
 
     ArrayList<Instance> instances = new ArrayList<Instance>();
-    Hashtable<Integer,Decided_State> sequence_status;
+    static Hashtable<Integer,Decided_State[]> sequence_status;
     // Your data here
 
 
@@ -51,7 +51,7 @@ public class Paxos implements PaxosRMI, Runnable{
         for(int i = 0; i<ports.length; i++){
         	highest_done_seq[i] = -1; 
         }
-        sequence_status  = new Hashtable<Integer,Decided_State>();
+        sequence_status  = new Hashtable<Integer,Decided_State[]>();
         // register peers, do not modify this part
         try{
             System.setProperty("java.rmi.server.hostname", this.peers[this.me]);
@@ -131,16 +131,43 @@ public class Paxos implements PaxosRMI, Runnable{
     	this.prop_num = glob_prop_num;
     	glob_prop_num ++;
     	if(!sequence_status.containsKey(seq)){
-    		Decided_State ds = new Decided_State(this.prop_num);
-    		sequence_status.put(seq, ds);
+    		Decided_State[] ds_list = new Decided_State[num_ports]; 
+    		for(int i = 0; i< num_ports; i++){
+    			Decided_State ds = new Decided_State(this.prop_num);
+    			ds_list[i] = ds;
+    		}
+    		sequence_status.put(seq, ds_list);
+    	
+	//    	sequence_status.get(seq).isDecided = false; 
+	//    	sequence_status.get(seq).prop_num = prop_num;
+	    	Thread t = new Thread(this);
+	        Instance i = new Instance(t, seq);
+	        instances.add(i);
+	        //decided = false; 
+	    	t.start(); 
     	}
-    	sequence_status.get(seq).isDecided = false; 
-    	sequence_status.get(seq).prop_num = prop_num;
-    	Thread t = new Thread(this);
-        Instance i = new Instance(t, seq);
-        instances.add(i);
-        //decided = false; 
-    	t.start(); 
+    	else{
+    		int num_decided = 0;
+    		Object loc_val=null;
+    		for(Decided_State ds: sequence_status.get(seq)){
+    			if(ds.isDecided){
+    				loc_val = ds.value;
+    				num_decided++;
+    			}
+    		}
+    		
+    		if(num_decided>num_ports/2){
+    			sequence_status.get(seq)[me].isDecided = true;
+    			sequence_status.get(seq)[me].value = loc_val;
+    		}
+    		else{
+    			Thread t = new Thread(this);
+    	        Instance i = new Instance(t, seq);
+    	        instances.add(i);
+    	        //decided = false; 
+    	    	t.start();
+    		}
+    	}
     	mutex.unlock();
         // Your code here
     }
@@ -151,7 +178,7 @@ public class Paxos implements PaxosRMI, Runnable{
     	Request req = new Request(seq, prop_num, v);
     	//int id = 0;
     	
-    	while(!sequence_status.get(seq).isDecided){
+    	while(!sequence_status.get(seq)[me].isDecided){
     		boolean prepare_ok = false;
     		int num_prepares = 0;
     		int num_accepts = 0; 
@@ -185,13 +212,14 @@ public class Paxos implements PaxosRMI, Runnable{
 	    			if(resp.ok){
 	    				num_accepts++;
 	    				if(num_accepts > num_ports/2){
-	    					sequence_status.get(seq).isDecided = true; 
+	    					sequence_status.get(req.seq)[me].isDecided = true; 
+	    					sequence_status.get(req.seq)[me].value = req.value;
 	    					//break;
 	    				}
 	    			}
 	    		}
 	    	}
-	    	if(sequence_status.get(seq).isDecided){
+	    	if(sequence_status.get(seq)[me].isDecided){
 	    		for(int id = 0; id<num_ports; id++){
 	    			Call("Decide",req,id);
 	    		}
@@ -205,14 +233,14 @@ public class Paxos implements PaxosRMI, Runnable{
     int highest_prepare_seen = -1;
     public Response Prepare(Request req){
     	int inner_seq = req.seq;
-    	if(!sequence_status.containsKey(inner_seq)){
-    		Decided_State ds = new Decided_State(-1);
-    		sequence_status.put(inner_seq, ds);
-    	}
-    	if(sequence_status.get(inner_seq).prop_num < req.prop_num){
-    		sequence_status.get(inner_seq).isDecided = false; 
-    		sequence_status.get(inner_seq).prop_num = req.prop_num;
-    	}
+//    	if(!sequence_status.containsKey(inner_seq)){
+//    		Decided_State ds = new Decided_State(-1);
+//    		sequence_status.put(inner_seq, ds);
+//    	}
+//    	if(sequence_status.get(inner_seq).prop_num < req.prop_num){
+//    		sequence_status.get(inner_seq).isDecided = false; 
+//    		sequence_status.get(inner_seq).prop_num = req.prop_num;
+//    	}
     	System.out.println("Prepare Paxos["+me+"]");
     	if(req.seq > highest_seq_seen){
     		highest_seq_seen = req.seq;
@@ -257,7 +285,9 @@ public class Paxos implements PaxosRMI, Runnable{
 
     public Response Decide(Request req){
     	System.out.println("Decide Paxos["+me+"]");
-    	sequence_status.get(req.seq).isDecided = true;
+    	
+    	sequence_status.get(req.seq)[me].isDecided = true; 
+		sequence_status.get(req.seq)[me].value = req.value;
     	v = req.value;
     	System.out.println(req.value);
     	return null; 
@@ -353,8 +383,8 @@ public class Paxos implements PaxosRMI, Runnable{
     	//System.out.println(sequence_status);
 //    	if(sequence_status.containsKey(seq))
 //    		System.out.println(sequence_status.get(seq).isDecided);
-        if(sequence_status.containsKey(seq) && sequence_status.get(seq).isDecided == true) {
-            return new retStatus(State.Decided, v);
+        if(sequence_status.containsKey(seq) && sequence_status.get(seq)[me].isDecided == true) {
+            return new retStatus(State.Decided, sequence_status.get(seq)[me].value);
         } else {
             return new retStatus(State.Pending, null);
         }
@@ -418,5 +448,6 @@ public class Paxos implements PaxosRMI, Runnable{
 		}
 		boolean isDecided;
     	int prop_num;
+    	Object value;
     }
 }
