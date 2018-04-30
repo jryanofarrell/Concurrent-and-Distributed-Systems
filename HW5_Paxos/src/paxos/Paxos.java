@@ -56,7 +56,7 @@ public class Paxos implements PaxosRMI, Runnable{
             stub = (PaxosRMI) UnicastRemoteObject.exportObject(this, this.ports[this.me]);
             registry.rebind("Paxos", stub);
         } catch(Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -88,7 +88,7 @@ public class Paxos implements PaxosRMI, Runnable{
             else if(rmi.equals("Decide"))
                 callReply = stub.Decide(req);
             else
-                System.out.println("Wrong parameters!");
+                System.out.println("Wrong parameters! --- "+rmi );
         } catch(Exception e){
             return null;
         }
@@ -157,7 +157,9 @@ public class Paxos implements PaxosRMI, Runnable{
 	    				break;			
 	    			}
 	    		}
-	    		for(int i = 0; i<num_ports; i++){
+	    		for(int i = 0; i<resp.highest_done_seq.length; i++){
+//	    			System.out.println(highest_done_seq.length);
+//	    			System.out.println(resp.highest_done_seq.length);
 	    			if(highest_done_seq[i]<resp.highest_done_seq[i]){
 	    				highest_done_seq[i] = resp.highest_done_seq[i];
 	    			}
@@ -177,7 +179,7 @@ public class Paxos implements PaxosRMI, Runnable{
 	    	}
 	    	if(decided){
 	    		for(int id = 0; id<num_ports; id++){
-	    			Call("Decided",req,id);
+	    			Call("Decide",req,id);
 	    		}
 	    	}
 	    	
