@@ -14,6 +14,7 @@ public class Paxos implements PaxosRMI, Runnable{
     ReentrantLock mutex;
     String[] peers; // hostname
     int[] ports; // host port
+    int[] highest_done_seq;
     int me; // index into peers[]
     int num_ports;
     Registry registry;
@@ -44,6 +45,10 @@ public class Paxos implements PaxosRMI, Runnable{
         // Your initialization code here
 
         num_ports = peers.length;
+        highest_done_seq = new int[ports.length];
+        for(int i = 0; i<ports.length; i++){
+        	highest_done_seq[i] = -1; 
+        }
         // register peers, do not modify this part
         try{
             System.setProperty("java.rmi.server.hostname", this.peers[this.me]);
@@ -142,15 +147,17 @@ public class Paxos implements PaxosRMI, Runnable{
 	    	for(int id = 0; id<num_ports; id++){
 	    		Response resp = Call("Prepare",req,id);
 	    		if(resp.ok){
-	    			if(resp.highest_accept_seen > req.prop_num)
+	    			if(resp.highest_accept_seen > req.prop_num){
 	    				req.value = resp.value; 
 	    				req.prop_num = resp.highest_accept_seen; 
+	    			}
 	    			num_prepares++;
 	    			if(num_prepares>num_ports/2){
 	    				prepare_ok = true;
 	    				break;			
 	    			}
 	    		}
+	    		highest_done_seq[id] = resp.highest_done_seq;
 	    	}
 	    	if(prepare_ok){
 	    		for(int id = 0; id<num_ports; id++){
@@ -180,17 +187,19 @@ public class Paxos implements PaxosRMI, Runnable{
     	if(req.seq > highest_seq_seen){
     		highest_seq_seen = req.seq;
     	}
+    	Response resp = new Response();
+    	resp.highest_done_seq = highest_done_seq[me];
     	if (req.prop_num>highest_prepare_seen){
-    		Response resp = new Response();
+    		//Response resp = new Response();
     		highest_prepare_seen = req.prop_num;
     		resp.highest_prepare_seen = highest_prepare_seen;
     		resp.highest_accept_seen = highest_accept_seen;
     		resp.value = v;
     		resp.ok = true;
-    		return resp;
+    		//return resp;
     	}
     	
-    	return new Response(); 
+    	return resp
         // your code here
 
     }
@@ -227,10 +236,10 @@ public class Paxos implements PaxosRMI, Runnable{
      * see the comments for Min() for more explanation.
      */
     
-    int highest_seq_done = -1;
+   
     public void Done(int seq) {
-    	if(seq-1 > highest_seq_done)
-    		highest_seq_done = seq-1;
+    	if(seq+1 > highest_done_seq[me])
+    		highest_done_seq[me] = seq+1;
         // Your code here
         for(int count = 0; count < instances.size(); count++) {
             if(instances.get(count).seq <= seq) {
@@ -282,6 +291,13 @@ public class Paxos implements PaxosRMI, Runnable{
      * instances.
      */
     public int Min(){
+    	int min = Integer.MAX_VALUE;
+    	for(int num: highest_done_seq){
+    		if (num<min){
+    			num = min;
+    		}
+    	}
+    	return min; 
         // Your code here
 
     }
