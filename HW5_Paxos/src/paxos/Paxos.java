@@ -317,6 +317,11 @@ public class Paxos implements PaxosRMI, Runnable{
      */
     public retStatus Status(int seq){
         // Your code here
+        if(decided == true) {
+            return new retStatus(State.Decided, v);
+        } else {
+            return new retStatus(State.Pending, null);
+        }
 
     }
 
