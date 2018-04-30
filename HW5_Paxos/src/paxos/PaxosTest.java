@@ -19,8 +19,10 @@ public class PaxosTest {
             if(pxa[i] != null){
                 ret = pxa[i].Status(seq);
                 if(ret.state == State.Decided) {
+                	System.out.println("Return value = " + ret.v+" from "+i);
                     assertFalse("decided values do not match: seq=" + seq + " i=" + i + " v=" + v + " v1=" + ret.v, counter > 0 && !v.equals(ret.v));
                     counter++;
+                    
                     v = ret.v;
                 }
 
@@ -130,7 +132,7 @@ public class PaxosTest {
         final int npaxos = 5;
         Paxos[] pxa = initPaxos(npaxos);
 
-        //System.out.println("Test: Deaf proposer ...");
+        System.out.println("Test: Deaf proposer ...");
         pxa[0].Start(0, "hello");
         waitn(pxa, 0, npaxos);
 
@@ -157,7 +159,7 @@ public class PaxosTest {
         } catch (Exception e){
             e.printStackTrace();
         }
-        System.out.println("do we get here3");
+        //System.out.println("do we get here3");
         nd = ndecided(pxa, 1);
         assertFalse("a deaf peer heard about a decision " + nd, nd != npaxos-1);
 

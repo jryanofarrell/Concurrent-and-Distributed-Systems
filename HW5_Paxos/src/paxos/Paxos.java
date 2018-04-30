@@ -5,6 +5,7 @@ import java.rmi.registry.Registry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 /**
  * This class is the main class you need to implement paxos instances.
@@ -25,6 +26,7 @@ public class Paxos implements PaxosRMI, Runnable{
     static int glob_prop_num = 0; 
 
     ArrayList<Instance> instances = new ArrayList<Instance>();
+    Hashtable<Integer,Decided_State> sequence_status;
     // Your data here
 
 
@@ -49,6 +51,7 @@ public class Paxos implements PaxosRMI, Runnable{
         for(int i = 0; i<ports.length; i++){
         	highest_done_seq[i] = -1; 
         }
+        sequence_status  = new Hashtable<Integer,Decided_State>();
         // register peers, do not modify this part
         try{
             System.setProperty("java.rmi.server.hostname", this.peers[this.me]);
@@ -126,23 +129,29 @@ public class Paxos implements PaxosRMI, Runnable{
     	}
     	this.v = value; 
     	this.prop_num = glob_prop_num;
-    	glob_prop_num ++; 
+    	glob_prop_num ++;
+    	if(!sequence_status.containsKey(seq)){
+    		Decided_State ds = new Decided_State(this.prop_num);
+    		sequence_status.put(seq, ds);
+    	}
+    	sequence_status.get(seq).isDecided = false; 
+    	sequence_status.get(seq).prop_num = prop_num;
     	Thread t = new Thread(this);
         Instance i = new Instance(t, seq);
         instances.add(i);
-        decided = false; 
+        //decided = false; 
     	t.start(); 
     	mutex.unlock();
         // Your code here
     }
 
-    boolean decided = false; 
+    //boolean decided = false; 
     @Override
     public void run(){
     	Request req = new Request(seq, prop_num, v);
     	//int id = 0;
     	
-    	while(!decided){
+    	while(!sequence_status.get(seq).isDecided){
     		boolean prepare_ok = false;
     		int num_prepares = 0;
     		int num_accepts = 0; 
@@ -152,18 +161,17 @@ public class Paxos implements PaxosRMI, Runnable{
 	    			continue;
 	    		if(resp.ok){
 	    			if(resp.highest_accept_seen > req.prop_num){
+	    				System.out.println("CHANGING VALUE");
 	    				req.value = resp.value; 
 	    				req.prop_num = resp.highest_accept_seen; 
 	    			}
 	    			num_prepares++;
 	    			if(num_prepares>num_ports/2){
 	    				prepare_ok = true;
-	    				break;			
+	    				//break;			
 	    			}
 	    		}
 	    		for(int i = 0; i<resp.highest_done_seq.length; i++){
-//	    			System.out.println(highest_done_seq.length);
-//	    			System.out.println(resp.highest_done_seq.length);
 	    			if(highest_done_seq[i]<resp.highest_done_seq[i]){
 	    				highest_done_seq[i] = resp.highest_done_seq[i];
 	    			}
@@ -172,16 +180,18 @@ public class Paxos implements PaxosRMI, Runnable{
 	    	if(prepare_ok){
 	    		for(int id = 0; id<num_ports; id++){
 	    			Response resp = Call("Accept",req,id);
+	    			if(resp == null)
+		    			continue;
 	    			if(resp.ok){
 	    				num_accepts++;
 	    				if(num_accepts > num_ports/2){
-	    					decided = true; 
-	    					break;
+	    					sequence_status.get(seq).isDecided = true; 
+	    					//break;
 	    				}
 	    			}
 	    		}
 	    	}
-	    	if(decided){
+	    	if(sequence_status.get(seq).isDecided){
 	    		for(int id = 0; id<num_ports; id++){
 	    			Call("Decide",req,id);
 	    		}
@@ -194,14 +204,25 @@ public class Paxos implements PaxosRMI, Runnable{
     // RMI handler
     int highest_prepare_seen = -1;
     public Response Prepare(Request req){
+    	int inner_seq = req.seq;
+    	if(!sequence_status.containsKey(inner_seq)){
+    		Decided_State ds = new Decided_State(-1);
+    		sequence_status.put(inner_seq, ds);
+    	}
+    	if(sequence_status.get(inner_seq).prop_num < req.prop_num){
+    		sequence_status.get(inner_seq).isDecided = false; 
+    		sequence_status.get(inner_seq).prop_num = req.prop_num;
+    	}
+    	System.out.println("Prepare Paxos["+me+"]");
     	if(req.seq > highest_seq_seen){
     		highest_seq_seen = req.seq;
     	}
     	Response resp = new Response();
     	resp.highest_done_seq = highest_done_seq;
     	if (req.prop_num>highest_prepare_seen){
-    		decided = false; 
+    		//decided = false; 
     		//Response resp = new Response();
+    		
     		highest_prepare_seen = req.prop_num;
     		resp.highest_prepare_seen = highest_prepare_seen;
     		resp.highest_accept_seen = highest_accept_seen;
@@ -217,12 +238,13 @@ public class Paxos implements PaxosRMI, Runnable{
 
     int highest_accept_seen = -1; 
     public Response Accept(Request req){
+    	System.out.println("Accept Paxos["+me+"]");
     	if(req.seq > highest_seq_seen){
     		highest_seq_seen = req.seq;
     	}
     	Response resp = new Response();
     	if(req.prop_num > highest_accept_seen){
-    		decided = false;
+    		//decided = false;
     		highest_accept_seen = req.prop_num;
     		v = req.value;
     		highest_prepare_seen = req.prop_num;
@@ -234,7 +256,8 @@ public class Paxos implements PaxosRMI, Runnable{
     }
 
     public Response Decide(Request req){
-    	decided = true;
+    	System.out.println("Decide Paxos["+me+"]");
+    	sequence_status.get(req.seq).isDecided = true;
     	v = req.value;
     	System.out.println(req.value);
     	return null; 
@@ -326,7 +349,11 @@ public class Paxos implements PaxosRMI, Runnable{
      */
     public retStatus Status(int seq){
         // Your code here
-        if(decided == true) {
+    	//System.out.println("Status Paxos["+me+","+seq+"]");
+    	//System.out.println(sequence_status);
+//    	if(sequence_status.containsKey(seq))
+//    		System.out.println(sequence_status.get(seq).isDecided);
+        if(sequence_status.containsKey(seq) && sequence_status.get(seq).isDecided == true) {
             return new retStatus(State.Decided, v);
         } else {
             return new retStatus(State.Pending, null);
@@ -378,10 +405,18 @@ public class Paxos implements PaxosRMI, Runnable{
     class Instance {
         Thread t;
         int seq;
-
+        
         Instance(Thread t, int seq) {
             this.t = t;
             this.seq = seq;
         }
+    }
+    class Decided_State{
+    	public Decided_State(int prop_num) {
+			this.prop_num = prop_num;
+			isDecided = false; 
+		}
+		boolean isDecided;
+    	int prop_num;
     }
 }
