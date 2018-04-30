@@ -4,6 +4,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.rmi.registry.Registry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.ArrayList;
 
 /**
  * This class is the main class you need to implement paxos instances.
@@ -21,6 +22,8 @@ public class Paxos implements PaxosRMI, Runnable{
     AtomicBoolean dead;// for testing
     AtomicBoolean unreliable;// for testing
     static int glob_prop_num = 0; 
+
+    ArrayList<Instance> instances = new ArrayList<Instance>();
     // Your data here
 
 
@@ -119,6 +122,8 @@ public class Paxos implements PaxosRMI, Runnable{
     	this.prop_num = glob_prop_num;
     	glob_prop_num ++; 
     	Thread t = new Thread(this);
+        Instance i = new Instance(t, seq);
+        instances.add(i);
     	t.start(); 
     	mutex.unlock();
         // Your code here
@@ -227,6 +232,13 @@ public class Paxos implements PaxosRMI, Runnable{
     	if(seq-1 > highest_seq_done)
     		highest_seq_done = seq-1;
         // Your code here
+        for(int count = 0; count < instances.size(); count++) {
+            if(instances.get(count).seq <= seq) {
+                instances.get(count).t.interrupt();
+                instances.remove(count);
+                count--;
+            }
+        }
     }
 
 
@@ -329,5 +341,13 @@ public class Paxos implements PaxosRMI, Runnable{
         return this.unreliable.get();
     }
 
+    class Instance {
+        Thread t;
+        int seq;
 
+        Instance(Thread t, int seq) {
+            this.t = t;
+            this.seq = seq;
+        }
+    }
 }
