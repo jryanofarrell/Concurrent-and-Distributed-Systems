@@ -128,8 +128,11 @@ public class Paxos implements PaxosRMI, Runnable{
     	//int id = 0;
     	boolean accepted = false;
     	for(int id = 0; id<num_ports; id++){
-    		Response res = Call("Prepare",req,id);
-    		if(res.value.equals(v)){
+    		Response resp = Call("Prepare",req,id);
+    		if(resp.ok){
+    			if(resp.highest_accept_seen > req.prop_num)
+    				req.value = resp.value; 
+    				req.prop_num = resp.highest_accept_seen; 
     			num_accepts++;
     			if(num_accepts>num_ports/2){
     				accepted = true;
@@ -147,7 +150,13 @@ public class Paxos implements PaxosRMI, Runnable{
     		Response resp = new Response();
     		highest_prepare_seen = req.prop_num;
     		resp.highest_prepare_seen = highest_prepare_seen;
+    		resp.highest_accept_seen = highest_accept_seen;
+    		resp.value = v;
+    		resp.ok = true;
+    		return resp;
     	}
+    	
+    	return new Response(); 
         // your code here
 
     }

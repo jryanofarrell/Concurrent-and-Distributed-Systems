@@ -12,6 +12,12 @@ public class Response implements Serializable {
     
     // your data here
     public Object value;
+    public int highest_prepare_seen;
+    public int highest_accept_seen;
+
+
+	public boolean ok = false;
+    
 
     // Your constructor and methods here
 }
