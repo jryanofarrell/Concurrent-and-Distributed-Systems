@@ -112,6 +112,9 @@ public class Paxos implements PaxosRMI, Runnable{
     	//Paxos p = new Paxos(me,peers,ports); 
     	mutex.lock();
     	this.seq = seq;
+    	if(seq > highest_seq_seen){
+    		highest_seq_seen = seq;
+    	}
     	this.v = value; 
     	this.prop_num = glob_prop_num;
     	glob_prop_num ++; 
@@ -169,6 +172,9 @@ public class Paxos implements PaxosRMI, Runnable{
     // RMI handler
     int highest_prepare_seen = -1;
     public Response Prepare(Request req){
+    	if(req.seq > highest_seq_seen){
+    		highest_seq_seen = req.seq;
+    	}
     	if (req.prop_num>highest_prepare_seen){
     		Response resp = new Response();
     		highest_prepare_seen = req.prop_num;
@@ -186,6 +192,9 @@ public class Paxos implements PaxosRMI, Runnable{
 
     int highest_accept_seen = -1; 
     public Response Accept(Request req){
+    	if(req.seq > highest_seq_seen){
+    		highest_seq_seen = req.seq;
+    	}
     	Response resp = new Response();
     	if(req.prop_num > highest_accept_seen){
     		highest_accept_seen = req.prop_num;
@@ -213,7 +222,10 @@ public class Paxos implements PaxosRMI, Runnable{
      * see the comments for Min() for more explanation.
      */
     
+    int highest_seq_done = -1;
     public void Done(int seq) {
+    	if(seq-1 > highest_seq_done)
+    		highest_seq_done = seq-1;
         // Your code here
     }
 
@@ -223,7 +235,9 @@ public class Paxos implements PaxosRMI, Runnable{
      * highest instance sequence known to
      * this peer.
      */
+    int highest_seq_seen = -1;
     public int Max(){
+    	return highest_seq_seen;
         // Your code here
     }
 
