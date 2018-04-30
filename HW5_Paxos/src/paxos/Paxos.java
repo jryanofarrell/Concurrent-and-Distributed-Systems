@@ -121,24 +121,47 @@ public class Paxos implements PaxosRMI, Runnable{
         // Your code here
     }
 
+    boolean decided = false; 
     @Override
     public void run(){
-    	int num_accepts = 0;
     	Request req = new Request(seq, prop_num, v);
     	//int id = 0;
-    	boolean accepted = false;
-    	for(int id = 0; id<num_ports; id++){
-    		Response resp = Call("Prepare",req,id);
-    		if(resp.ok){
-    			if(resp.highest_accept_seen > req.prop_num)
-    				req.value = resp.value; 
-    				req.prop_num = resp.highest_accept_seen; 
-    			num_accepts++;
-    			if(num_accepts>num_ports/2){
-    				accepted = true;
-    				break;			
-    			}
-    		}
+    	
+    	while(!decided){
+    		boolean prepare_ok = false;
+    		int num_prepares = 0;
+    		int num_accepts = 0; 
+	    	for(int id = 0; id<num_ports; id++){
+	    		Response resp = Call("Prepare",req,id);
+	    		if(resp.ok){
+	    			if(resp.highest_accept_seen > req.prop_num)
+	    				req.value = resp.value; 
+	    				req.prop_num = resp.highest_accept_seen; 
+	    			num_prepares++;
+	    			if(num_prepares>num_ports/2){
+	    				prepare_ok = true;
+	    				break;			
+	    			}
+	    		}
+	    	}
+	    	if(prepare_ok){
+	    		for(int id = 0; id<num_ports; id++){
+	    			Response resp = Call("Accept",req,id);
+	    			if(resp.ok){
+	    				num_accepts++;
+	    				if(num_accepts > num_ports/2){
+	    					decided = true; 
+	    					break;
+	    				}
+	    			}
+	    		}
+	    	}
+	    	if(decided){
+	    		for(int id = 0; id<num_ports; id++){
+	    			Call("Decided",req,id);
+	    		}
+	    	}
+	    	
     	}
         //Your code here
     }
@@ -163,11 +186,22 @@ public class Paxos implements PaxosRMI, Runnable{
 
     int highest_accept_seen = -1; 
     public Response Accept(Request req){
+    	Response resp = new Response();
+    	if(req.prop_num > highest_accept_seen){
+    		highest_accept_seen = req.prop_num;
+    		v = req.value;
+    		highest_prepare_seen = req.prop_num;
+    		resp.ok = true;
+    	}
+    	return resp;
         // your code here
 
     }
 
     public Response Decide(Request req){
+    	decided = true;
+    	v = req.value;
+    	return null; 
         // your code here
 
     }
