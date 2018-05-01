@@ -58,7 +58,7 @@ public class Client {
     	sequence ++; 
     	while(true){
 	    	for(int id = 0; id < ports.length; id++){
-	    		Response res = Call("Put",req,id);
+	    		Response res = Call("Get",req,id);
 	    		if(res.isOk){
 	    			return res.value;
 	    		}
