@@ -74,7 +74,7 @@ public class Server implements KVPaxosRMI {
 	    	
 			actualOp = wait(seq);
 			count++;
-    	} while(actualOp != op);
+    	} while(actualOp.ClientSeq != op.ClientSeq);
     	return seq;	
     }
      
@@ -107,7 +107,7 @@ public class Server implements KVPaxosRMI {
     	//update requests seen
     	requestsSeen.put(req.operation.ClientSeq, req);
     	Response res = new Response(true, db.get(req.operation.key));
-    	px.Done(seq);
+    	//px.Done(seq);
     	currentSeq = seq + 1;
     	mutex.unlock();
     	return res;
@@ -115,6 +115,7 @@ public class Server implements KVPaxosRMI {
 
     public Response Put(Request req){
         // Your code here
+    	System.out.println("Server put");
     	mutex.lock();
     	
     	//check to see if already handled
@@ -125,7 +126,7 @@ public class Server implements KVPaxosRMI {
     	int seq = Paxos(req.operation);
     	updateLocalLog(currentSeq, seq);
     	
-    	px.Done(seq);
+    	//px.Done(seq);
     	currentSeq = seq + 1;
     	mutex.unlock();
     	return new Response(true, null);
