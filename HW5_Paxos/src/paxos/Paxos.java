@@ -360,10 +360,12 @@ public class Paxos implements PaxosRMI, Runnable{
     public int Min(){
     	int min = Integer.MAX_VALUE;
     	for(int num: highest_done_seq){
+    		//System.out.println(num);
     		if (num<min){
-    			num = min;
+    			min = num;
     		}
     	}
+    	//System.out.println(min);
     	return min+1; 
         // Your code here
 
