@@ -14,7 +14,6 @@ public class Request implements Serializable {
     Request(Op operation){
     	this.operation = operation;
     }
-
     // Your constructor and methods here
-
+    
 }
