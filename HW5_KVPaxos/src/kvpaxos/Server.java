@@ -67,10 +67,11 @@ public class Server implements KVPaxosRMI {
     	int seq = currentSeq;
     	int count = 0;
     	Op actualOp;
-		do {
+    	px.Start(seq, op);
+    	do {
 			if(count > 0)
 				seq++;
-			px.Start(seq, op);
+	    	
 			actualOp = wait(seq);
 			count++;
     	} while(actualOp != op);
@@ -105,10 +106,11 @@ public class Server implements KVPaxosRMI {
     	
     	//update requests seen
     	requestsSeen.put(req.operation.ClientSeq, req);
+    	Response res = new Response(true, db.get(req.operation.key));
     	px.Done(seq);
     	currentSeq = seq + 1;
     	mutex.unlock();
-    	return null;
+    	return res;
     }
 
     public Response Put(Request req){
@@ -126,7 +128,7 @@ public class Server implements KVPaxosRMI {
     	px.Done(seq);
     	currentSeq = seq + 1;
     	mutex.unlock();
-    	return null;
+    	return new Response(true, null);
     }
 
 

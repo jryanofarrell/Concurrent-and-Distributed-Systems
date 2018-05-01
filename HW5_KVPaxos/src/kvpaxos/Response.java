@@ -13,4 +13,8 @@ public class Response implements Serializable {
     boolean isOk;
     Integer value; 
     // Your constructor and methods here
+    Response(boolean isOk, Integer value) {
+    	this.isOk = isOk;
+    	this.value = value;
+    }
 }
