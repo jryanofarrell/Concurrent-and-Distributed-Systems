@@ -9,7 +9,11 @@ import java.io.Serializable;
 public class Request implements Serializable {
     static final long serialVersionUID=11L;
     // Your data here
-
+    Op operation;
+    
+    Request(Op operation){
+    	this.operation = operation;
+    }
 
     // Your constructor and methods here
 

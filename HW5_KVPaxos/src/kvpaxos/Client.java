@@ -3,11 +3,13 @@ package kvpaxos;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import paxos.State;
+
 
 public class Client {
     String[] servers;
     int[] ports;
-
+    static int sequence = 1; 
     // Your data here
 
 
@@ -50,12 +52,67 @@ public class Client {
 
     // RMI handlers
     public Integer Get(String key){
-        // Your code here
+    	
+    	Op operation = new Op("Get",sequence,key,-1);
+    	Request req = new Request(operation);
+    	sequence ++; 
+    	while(true){
+	    	for(int id = 0; id < ports.length; id++){
+	    		Response res = Call("Put",req,id);
+	    		if(res.isOk){
+	    			return res.value;
+	    		}
+	    	}
+	    	try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
 
     }
 
     public boolean Put(String key, Integer value){
+    	Op operation = new Op("Put",sequence,key,value);
+    	Request req = new Request(operation);
+    	sequence ++; 
+    	while(true){
+	    	for(int id = 0; id < ports.length; id++){
+	    		Response res = Call("Put",req,id);
+	    		if(res.isOk){
+	    			return res.isOk;
+	    		}
+	    	}
+	    	try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
         // Your code here
     }
+    
+//    public Op wait ( int seq ){
+//    	int to = 10;
+//    	while ( true ){
+//    		Paxos.retStatus ret = this.px.Status(seq);
+//    		if(ret.state == State.Decided){
+//    			return Op.class.cast(ret.v);
+//    		}
+//    		try{
+//    			Thread.sleep(to);
+//    			
+//    		}
+//    		catch(Exception e){
+//    			e.printStackTrace();
+//    		}
+//    		if(to<1000){
+//    			to = to*2;
+//    		}
+//    	}
+//    }
+
 
 }
