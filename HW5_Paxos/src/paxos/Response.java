@@ -13,6 +13,6 @@ public class Response implements Serializable {
     // your data here
     public Object value;
 	public boolean ok = false;
-
+	public int[] highest_done_seq; 
     // Your constructor and methods here
 }

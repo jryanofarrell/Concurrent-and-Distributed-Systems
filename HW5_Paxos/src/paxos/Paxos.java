@@ -145,7 +145,8 @@ public class Paxos implements PaxosRMI, Runnable{
 	    	Thread t = new Thread(this);
 	        Instance i = new Instance(t, seq);
 	        instances.add(i);
-	        //decided = false; 
+	        //decided = false;
+	        System.out.println("Start me: "+me);
 	    	t.start(); 
     	}
     	else{
@@ -170,6 +171,11 @@ public class Paxos implements PaxosRMI, Runnable{
     	    	t.start();
     		}
     	}
+    	try {
+            Thread.sleep(100);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     	mutex.unlock();
         // Your code here
     }
@@ -177,10 +183,11 @@ public class Paxos implements PaxosRMI, Runnable{
     //boolean decided = false; 
     @Override
     public void run(){
+    	System.out.println("Run Paxos["+me+"]  SequenceNumber: "+seq);
     	Request req = new Request(seq, prop_num, v);
     	//int id = 0;
     	
-    	while(!sequence_status.get(seq)[me].isDecided){
+    	while(!sequence_status.get(req.seq)[me].isDecided){
     		boolean prepare_ok = false;
     		int num_prepares = 0;
     		int num_accepts = 0; 
@@ -200,11 +207,11 @@ public class Paxos implements PaxosRMI, Runnable{
 	    				//break;			
 	    			}
 	    		}
-//	    		for(int i = 0; i<resp.highest_done_seq.length; i++){
-//	    			if(highest_done_seq[i]<resp.highest_done_seq[i]){
-//	    				highest_done_seq[i] = resp.highest_done_seq[i];
-//	    			}
-//	    		}
+	    		for(int i = 0; i<resp.highest_done_seq.length; i++){
+	    			if(highest_done_seq[i]<resp.highest_done_seq[i]){
+	    				highest_done_seq[i] = resp.highest_done_seq[i];
+	    			}
+	    		}
 	    	}
 	    	if(prepare_ok){
 	    		for(int id = 0; id<num_ports; id++){
@@ -221,7 +228,7 @@ public class Paxos implements PaxosRMI, Runnable{
 	    			}
 	    		}
 	    	}
-	    	if(sequence_status.get(seq)[me].isDecided){
+	    	if(sequence_status.get(req.seq)[me].isDecided){
 	    		for(int id = 0; id<num_ports; id++){
 	    			Call("Decide",req,id);
 	    		}
@@ -234,8 +241,9 @@ public class Paxos implements PaxosRMI, Runnable{
     
     public Response Prepare(Request req){
     	int inner_seq = req.seq;
-    	System.out.println("Prepare Paxos["+me+"]");
+    	System.out.println("Prepare Paxos["+me+"]  SequenceNumber: "+req.seq);
     	Response resp = new Response();
+    	resp.highest_done_seq = highest_done_seq; 
     	if(prepare_seq_req.containsKey(req.seq) && prepare_seq_req.get(req.seq).prop_num > req.prop_num){
     		return resp;
     	}
@@ -251,7 +259,7 @@ public class Paxos implements PaxosRMI, Runnable{
 
  
     public Response Accept(Request req){
-    	System.out.println("Accept Paxos["+me+"]");
+    	System.out.println("Accept Paxos["+me+"]  SequenceNumber: "+req.seq);
 //    	if(req.seq > highest_seq_seen){
 //    		highest_seq_seen = req.seq;
 //    	}
@@ -277,7 +285,7 @@ public class Paxos implements PaxosRMI, Runnable{
     }
 
     public Response Decide(Request req){
-    	System.out.println("Decide Paxos["+me+"]");
+    	System.out.println("Decide Paxos["+me+"]  SequenceNumber: "+req.seq);
     	
     	sequence_status.get(req.seq)[me].isDecided = true; 
 		sequence_status.get(req.seq)[me].value = req.value;
